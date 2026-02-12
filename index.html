@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Jalisciense - Sistema Pro</title>
+    <title>La Jalisciense Pro</title>
     <style>
         /* --- TEMA LAVANDA --- */
         :root {
@@ -205,8 +205,12 @@
 
         <div class="card">
             <h2>📝 Historial</h2>
-            <button onclick="downloadExcel()" style="background:none; border:none; color:var(--primary); text-decoration:underline; margin-bottom:10px; font-weight:bold;">Descargar Excel Profesional ⬇</button>
-            <div style="max-height:250px; overflow-y:auto;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="downloadExcel()" class="btn btn-success" style="margin-top:0;">⬇ Excel</button>
+                <button onclick="clearHistory()" class="btn btn-danger" style="margin-top:0; background:#D32F2F;">🗑 Borrar</button>
+            </div>
+            
+            <div style="max-height:250px; overflow-y:auto; margin-top:15px;">
                 <table id="hist-table"><tbody></tbody></table>
             </div>
         </div>
@@ -237,7 +241,8 @@
     </nav>
 
     <script>
-        const DB_KEY = 'jalisciense_final_v7';
+        // --- BASE DE DATOS (V8 - Limpia errores anteriores) ---
+        const DB_KEY = 'jalisciense_final_v8';
         
         const realFlavors = [
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -266,6 +271,9 @@
         let prodMode = 'fruta';
         let invView = 'fruta';
 
+        // Validar integridad de datos
+        if(!db.inventory || db.inventory.length < 5) db.inventory = realFlavors;
+
         function save() {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
             updateUI();
@@ -286,6 +294,7 @@
             grid.innerHTML = '';
             if(type === 'paleta') { pc.style.display='none'; fm.style.display='block'; }
             else { pc.style.display='block'; fm.style.display='none'; }
+            
             db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(item => {
                 if(item.t !== type) return;
                 const card = document.createElement('div');
@@ -350,7 +359,7 @@
             db.cash+=tc; db.soldL+=tl; db.soldP+=tp;
             db.history.unshift({d:new Date().toLocaleTimeString(), a:'VENTA', det:det.join(" + "), m:`+$${tc}`});
             cart=[]; document.getElementById('checkout-modal').style.display='none';
-            save(); alert("Venta registrada");
+            save(); alert("✅ Venta registrada");
             const ab = document.querySelector('#screen-pos .filter-btn.active');
             if(ab) ab.click();
         }
@@ -397,10 +406,10 @@
 
         function updateUI() {
             document.getElementById('stat-cash').innerText=`$${db.cash}`;
-            document.getElementById('stat-sold-l').innerText=`${db.soldL} L`;
-            document.getElementById('stat-sold-p').innerText=`${db.soldP} Pz`;
-            document.getElementById('stat-prod-l').innerText=`${db.prodL} L`;
-            document.getElementById('stat-prod-p').innerText=`${db.prodP} Pz`;
+            document.getElementById('stat-sold-l').innerText=`${db.soldL||0} L`;
+            document.getElementById('stat-sold-p').innerText=`${db.soldP||0} Pz`;
+            document.getElementById('stat-prod-l').innerText=`${db.prodL||0} L`;
+            document.getElementById('stat-prod-p').innerText=`${db.prodP||0} Pz`;
             document.getElementById('inv-title').innerText='Inventario de '+invView;
             const tb = document.querySelector('#inv-table tbody');
             tb.innerHTML = '';
@@ -417,36 +426,41 @@
         }
 
         function closeDay() {
-            if(!confirm("Cerrar caja?")) return;
+            if(!confirm("¿Cerrar caja? Se reiniciará el dinero.")) return;
             db.history.unshift({d:new Date().toLocaleTimeString(), a:'CIERRE', det:'--- CORTE ---', m:'$0'});
             db.cash=0; db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; save();
         }
 
-                function downloadExcel() {
-            // 1. Definimos los encabezados
-            let csv = "\uFEFF"; // Este es el código para que reconozca tildes
-            csv += "Hora;Acción;Descripción Detallada;Monto\n";
-
-            // 2. Recorremos el historial
-            db.history.forEach(h => {
-                // Limpiamos comas o puntos y coma internos para no romper las columnas
-                let detalleLimpio = h.det.replace(/;/g, ",").replace(/\n/g, " ");
-                csv += `${h.d};${h.a};"${detalleLimpio}";${h.m}\n`;
-            });
-
-            // 3. Creamos el archivo con formato CSV de alta compatibilidad
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            // Usamos .csv porque es el formato más seguro para Google Sheets en celular
-            a.download = `Corte_LaJalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
+        function clearHistory() {
+            if(confirm("¿Estás seguro de BORRAR TODO el historial?\nEsta acción es permanente.")) {
+                if(confirm("⚠️ CONFIRMACIÓN FINAL\nSe borrarán todos los registros de ventas.")) {
+                    db.history = [];
+                    save();
+                    alert("Historial eliminado.");
+                }
+            }
         }
 
+        function downloadExcel() {
+            // Generar CSV Universal con BOM para acentos y separador ;
+            let csv = "\uFEFFFecha,Accion,Detalle,Monto\n";
+            db.history.forEach(h => {
+                // Reemplazamos comas internas por espacios para no romper columnas
+                let cleanDet = h.det.replace(/,/g, ' '); 
+                csv += `${h.d},${h.a},"${cleanDet}",${h.m}\n`;
+            });
+            
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; 
+            a.download = `Corte_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+            a.click();
+        }
 
-        setFilter('fruta', document.querySelector('.filter-btn'));
+        // INICIO
+        const firstBtn = document.querySelector('.filter-btn');
+        if(firstBtn) setFilter('fruta', firstBtn);
         updateUI();
     </script>
 </body>
