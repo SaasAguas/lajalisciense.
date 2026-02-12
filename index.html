@@ -241,8 +241,8 @@
     </nav>
 
     <script>
-        // --- BASE DE DATOS (V8 - Limpia errores anteriores) ---
-        const DB_KEY = 'jalisciense_final_v8';
+        // --- BASE DE DATOS (V9 - Sin Frapuchino) ---
+        const DB_KEY = 'jalisciense_final_v9';
         
         const realFlavors = [
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -259,7 +259,7 @@
             {n:'Crema Irlandesa', t:'crema', s:15},
             {n:'Paleta-Leche', t:'paleta', s:20, p:30}, {n:'Paleta-Agua', t:'paleta', s:20, p:25},
             {n:'Fresas Con Crema', t:'paleta', s:20, p:25}, {n:'Sandwich', t:'paleta', s:20, p:20},
-            {n:'Campana', t:'paleta', s:20, p:20}, {n:'Frapuchino', t:'paleta', s:20, p:10}
+            {n:'Campana', t:'paleta', s:20, p:20}
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
