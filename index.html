@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>La Jalisciense Pro</title>
+
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <meta name="theme-color" content="#6A1B9A">
     <style>
         /* --- TEMA LAVANDA --- */
         :root {
@@ -299,9 +304,19 @@
                 const card = document.createElement('div');
                 card.className = 'flavor-card';
                 card.onclick = () => addToCart(item);
-                let cs = item.t==='crema'?'color:#AB47BC':'color:#2c2c2c';
+                
+                // --- AQUI SE DEFINE EL COLOR DEL TEXTO (EN VENTAS) ---
+                let cs = 'color:#2c2c2c'; // Color default
                 let pd = '';
-                if(item.t==='paleta') { cs='color:#6A1B9A'; pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`; }
+
+                if(item.t === 'crema') {
+                     cs = 'color:#AB47BC'; // Lila claro para crema
+                } else if (item.t === 'fruta') {
+                     cs = 'color:#BA68C8'; // NUEVO COLOR LILA PARA FRUTA
+                } else if(item.t==='paleta') {
+                     cs='color:#6A1B9A'; // Morado oscuro para paleta
+                     pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`;
+                }
                 
                 // Si es el frapuchino ocultamos el stock
                 let stockDisp = item.hidden ? "♾️" : item.s;
