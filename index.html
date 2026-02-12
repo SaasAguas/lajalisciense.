@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>La Jalisciense</title>
     <style>
-        /* --- TEMA LAVANDA (COLORES NUEVOS) --- */
+        /* --- TEMA LAVANDA (COLORES) --- */
         :root {
             --primary: #6A1B9A; /* Morado Intenso */
-            --accent: #00E676;  /* Verde Venta */
+            --primary-light: #AB47BC;
+            --accent: #00E676;  /* Verde Venta (Solo botón cobrar) */
             --bg: #F3E5F5;      /* Fondo Lavanda */
-            --text: #2c2c2c;    /* Texto oscuro (anti modo noche) */
+            --text: #2c2c2c;    /* Texto oscuro */
             --card-bg: #FFFFFF; /* Blanco puro */
             --danger: #FF5252;
         }
 
-        /* RESET PARA EVITAR MODO OSCURO AUTOMÁTICO */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             margin: 0; 
             background-color: var(--bg); 
             color: var(--text); 
-            padding-bottom: 80px; 
+            padding-bottom: 90px; 
         }
         
         /* NAVEGACIÓN FIJA ABAJO */
@@ -48,7 +48,7 @@
         .active-screen { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* TARJETAS Y BOTONES */
+        /* TARJETAS */
         .card { 
             background: var(--card-bg); 
             padding: 15px; 
@@ -58,12 +58,34 @@
         }
         h2 { margin-top: 0; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid #f3e5f5; padding-bottom: 10px;}
         
+        /* BOTONES GENERALES */
         .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; color: white; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); }
         .btn-success { background: var(--accent); color: #004d25; }
         .btn-danger { background: var(--danger); }
 
-        /* GRID DE SABORES (BOTONES GRANDES) */
+        /* BOTONES DE FILTRO (NUEVO DISEÑO) */
+        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-btn {
+            flex: 1;
+            padding: 12px 5px;
+            border: none;
+            border-radius: 12px;
+            background-color: #E1BEE7; /* Lila suave apagado */
+            color: #4A148C;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background-color: var(--primary); /* Morado Intenso Seleccionado */
+            color: white;
+            box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* GRID DE SABORES */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .flavor-card { 
             background: white; 
@@ -82,9 +104,9 @@
             display: inline-block; margin-top: 5px; font-weight: bold;
         }
         
-        /* BARRA FLOTANTE DE CARRITO */
+        /* BARRA FLOTANTE CARRITO */
         .cart-bar { 
-            position: fixed; bottom: 70px; left: 15px; right: 15px; 
+            position: fixed; bottom: 75px; left: 15px; right: 15px; 
             background: var(--primary); color: white; 
             padding: 15px; border-radius: 50px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -99,10 +121,22 @@
         .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
         .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
-        /* TABLAS */
+        /* TABLAS Y LISTAS */
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th, td { text-align: left; padding: 10px; border-bottom: 1px solid #f3e5f5; }
-        th { color: var(--primary); }
+        
+        .cart-list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #eee;
+        }
+        .delete-btn {
+            background: var(--danger); color: white;
+            border: none; border-radius: 8px;
+            width: 35px; height: 35px;
+            font-weight: bold; font-size: 1.2rem;
+            margin-left: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -111,18 +145,20 @@
         <div class="card">
             <h1 style="text-align:center; color:var(--primary); margin: 5px 0 15px 0;">La Jalisciense 🍦</h1>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button class="btn btn-primary" onclick="setFilter('all')" style="margin:0; font-size:0.9rem; opacity:0.8;">Todos</button>
-                <button class="btn btn-success" onclick="setFilter('fruta')" style="margin:0; font-size:0.9rem">Fruta 🍓</button>
-                <button class="btn btn-primary" onclick="setFilter('crema')" style="margin:0; background:#AB47BC; font-size:0.9rem">Crema 🥛</button>
+            <div class="filter-container">
+                <button class="filter-btn active" onclick="setFilter('fruta', this)">Fruta 🍓</button>
+                <button class="filter-btn" onclick="setFilter('crema', this)">Crema 🥛</button>
+                <button class="filter-btn" onclick="setFilter('paleta', this)">Paletas 🍨</button>
             </div>
             
             <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:15px;">
-                <label style="font-size:0.9rem; color:#666; font-weight:bold;">Precio por Litro:</label>
+                <label style="font-size:0.9rem; color:#666; font-weight:bold;">Precio:</label>
                 <select id="price-select" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ddd; border-radius:8px; font-weight:bold; color:var(--primary);">
                     <option value="20" selected>$20 (Estándar)</option>
                     <option value="16">$16 (Mayoreo)</option>
                     <option value="15">$15 (Especial)</option>
+                    <option value="25">$25 (Especial Paleta/Extra)</option>
+                    <option value="30">$30 (Especial Paleta/Extra)</option>
                 </select>
             </div>
 
@@ -139,12 +175,12 @@
     <div id="screen-prod" class="screen">
         <div class="card">
             <h2>🏭 Registrar Producción</h2>
-            <p style="font-size:0.9rem; color:#666;">Ingresa los litros fabricados para sumar al inventario.</p>
+            <p style="font-size:0.9rem; color:#666;">Ingresa la cantidad para sumar al inventario.</p>
             
-            <label style="font-weight:bold; color:var(--primary);">Sabor:</label>
+            <label style="font-weight:bold; color:var(--primary);">Producto:</label>
             <select id="prod-flavor" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:10px; background:white;"></select>
             
-            <label style="font-weight:bold; color:var(--primary);">Cantidad (Litros):</label>
+            <label style="font-weight:bold; color:var(--primary);">Cantidad:</label>
             <div class="qty-selector">
                 <button class="qty-btn" onclick="adjustProd(-5)">-5</button>
                 <input type="number" id="prod-qty" value="20" style="border:none; background:transparent; text-align:center; font-size:1.5rem; width:60px; font-weight:bold;">
@@ -160,8 +196,8 @@
             <h2 style="color:white; border-bottom-color: rgba(255,255,255,0.2);">Caja Actual</h2>
             <h1 id="stat-cash" style="font-size:3rem; margin:10px 0;">$0</h1>
             <div style="display:flex; justify-content:space-around; margin-bottom:15px; font-size:0.9rem; opacity:0.9;">
-                <span>Vendidos: <b id="stat-sold">0L</b></span>
-                <span>Fabricados: <b id="stat-prod">0L</b></span>
+                <span>Vendidos: <b id="stat-sold">0</b></span>
+                <span>Fabricados: <b id="stat-prod">0</b></span>
             </div>
             <button class="btn" style="background:rgba(255,255,255,0.2); color:white;" onclick="closeDay()">🔒 Corte de Caja</button>
         </div>
@@ -185,10 +221,14 @@
     <div id="checkout-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
         <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
             <h3 style="margin-top:0; color:var(--primary);">🛒 Confirmar Venta</h3>
-            <ul id="checkout-list" style="padding-left:20px; margin-bottom:20px; color:#555;"></ul>
+            
+            <div id="checkout-list" style="max-height: 250px; overflow-y: auto; margin-bottom:20px;">
+                </div>
+
             <div style="text-align:right; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:1px solid #eee; padding-top:10px;" id="checkout-total">Total: $0</div>
+            
             <div style="display:flex; gap:10px;">
-                <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('checkout-modal').style.display='none'">Cancelar</button>
+                <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('checkout-modal').style.display='none'">Cerrar</button>
                 <button class="btn btn-success" style="margin:0;" onclick="finishSale()">Cobrar</button>
             </div>
         </div>
@@ -207,10 +247,11 @@
     </nav>
 
     <script>
-        // --- BASE DE DATOS LOCAL CON SABORES REALES ---
-        const DB_KEY = 'jalisciense_final_v1';
+        // --- BASE DE DATOS LOCAL ---
+        // Cambiamos a v3 para cargar los productos nuevos automáticamente
+        const DB_KEY = 'jalisciense_final_v3';
         
-        // Lista completa de sabores
+        // Lista completa de sabores y productos
         const realFlavors = [
             // FRUTAS
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -226,7 +267,15 @@
             {n:'Horchata Fresa', t:'crema', s:15}, {n:'Horchata Arroz', t:'crema', s:15}, {n:'Vainilla', t:'crema', s:15},
             {n:'Mazapán', t:'crema', s:15}, {n:'Chai', t:'crema', s:15}, {n:'Taro', t:'crema', s:15},
             {n:'Coco c/ Nuez', t:'crema', s:15}, {n:'Cebada', t:'crema', s:15}, {n:'Kalhua', t:'crema', s:15},
-            {n:'Crema Irlandesa', t:'crema', s:15}
+            {n:'Crema Irlandesa', t:'crema', s:15},
+
+            // PALETAS Y OTROS (Nuevos)
+            {n:'Paleta-Leche', t:'paleta', s:20},
+            {n:'Paleta-Agua', t:'paleta', s:20},
+            {n:'Fresas Con Crema', t:'paleta', s:20},
+            {n:'Sandwich', t:'paleta', s:20},
+            {n:'Campana', t:'paleta', s:20},
+            {n:'Frapuchino', t:'paleta', s:20}
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
@@ -235,10 +284,8 @@
             inventory: realFlavors
         };
 
-        // Si es la primera vez o faltan sabores, actualizamos la DB con los nuevos
-        if(db.inventory.length < 10) {
-            db.inventory = realFlavors;
-        }
+        // Forzar actualización si faltan productos
+        if(db.inventory.length < realFlavors.length) { db.inventory = realFlavors; }
 
         let cart = [];
 
@@ -257,7 +304,7 @@
         }
 
         // --- POS ---
-        function setFilter(type) {
+        function setFilter(type, btn) {
             const grid = document.getElementById('flavors-grid');
             grid.innerHTML = '';
             
@@ -265,21 +312,29 @@
             const sortedInv = db.inventory.sort((a,b) => a.n.localeCompare(b.n));
 
             sortedInv.forEach(item => {
-                if(type !== 'all' && item.t !== type) return;
+                if(item.t !== type) return;
                 
                 const card = document.createElement('div');
                 card.className = 'flavor-card';
                 card.onclick = () => addToCart(item);
                 
-                // Color diferente para cremas visualmente
-                const colorStyle = item.t === 'crema' ? 'color:#AB47BC' : 'color:#2c2c2c';
+                // Estilo diferente según tipo
+                let colorStyle = 'color:#2c2c2c';
+                if(item.t === 'crema') colorStyle = 'color:#AB47BC';
+                if(item.t === 'paleta') colorStyle = 'color:#6A1B9A';
                 
                 card.innerHTML = `
                     <strong style="${colorStyle}">${item.n}</strong><br>
-                    <span class="stock-badge">${item.s}L</span>
+                    <span class="stock-badge">${item.s}</span>
                 `;
                 grid.appendChild(card);
             });
+
+            // Actualizar botones (Visual Selected)
+            if(btn) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
         }
 
         function addToCart(item) {
@@ -301,43 +356,65 @@
             if(cart.length > 0) {
                 bar.style.display = 'flex';
                 const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-                const liters = cart.reduce((acc, item) => acc + item.qty, 0);
+                const count = cart.reduce((acc, item) => acc + item.qty, 0);
                 document.getElementById('cart-total').innerText = `$${total}`;
-                document.getElementById('cart-count').innerText = `${liters} L`;
+                document.getElementById('cart-count').innerText = `${count}`;
             } else {
                 bar.style.display = 'none';
             }
         }
 
+        // --- CARRITO ---
         function showCheckout() {
             const list = document.getElementById('checkout-list');
             list.innerHTML = '';
             let total = 0;
-            cart.forEach(item => {
+            
+            if(cart.length === 0) return;
+
+            cart.forEach((item, index) => {
                 total += item.price * item.qty;
-                list.innerHTML += `<li>${item.qty}L ${item.name} ($${item.price}) = <b>$${item.price*item.qty}</b></li>`;
+                list.innerHTML += `
+                    <div class="cart-list-item">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            ${item.qty} x $${item.price} = <b>$${item.price*item.qty}</b>
+                        </div>
+                        <button class="delete-btn" onclick="removeFromCart(${index})">✕</button>
+                    </div>
+                `;
             });
             document.getElementById('checkout-total').innerText = `Total: $${total}`;
             document.getElementById('checkout-modal').style.display = 'flex';
         }
 
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+            if(cart.length === 0) {
+                document.getElementById('checkout-modal').style.display = 'none';
+            } else {
+                showCheckout();
+            }
+        }
+
         function finishSale() {
             let totalCash = 0;
-            let totalLiters = 0;
+            let totalItems = 0;
 
             cart.forEach(c => {
                 const invItem = db.inventory.find(i => i.n === c.name);
                 if(invItem) invItem.s -= c.qty;
                 totalCash += c.price * c.qty;
-                totalLiters += c.qty;
+                totalItems += c.qty;
             });
 
             db.cash += totalCash;
-            db.sold += totalLiters;
+            db.sold += totalItems;
             db.history.unshift({
                 d: new Date().toLocaleTimeString(),
                 a: 'VENTA',
-                det: `${totalLiters}L Varios`,
+                det: `${totalItems} items`,
                 m: `+$${totalCash}`
             });
 
@@ -345,7 +422,9 @@
             document.getElementById('checkout-modal').style.display = 'none';
             save();
             alert("✅ Venta registrada");
-            setFilter('all'); 
+            // Recargar el filtro activo
+            const activeBtn = document.querySelector('.filter-btn.active');
+            if(activeBtn) activeBtn.click();
         }
 
         // --- PRODUCCIÓN ---
@@ -367,37 +446,36 @@
                 db.history.unshift({
                     d: new Date().toLocaleTimeString(),
                     a: 'PROD',
-                    det: `${qty}L ${name}`,
+                    det: `${qty} ${name}`,
                     m: '-'
                 });
                 save();
-                alert(`🏭 +${qty}L de ${name} agregados.`);
+                alert(`🏭 +${qty} de ${name} agregados.`);
             }
         }
 
         // --- ADMIN ---
         function updateUI() {
-            // Stats
             document.getElementById('stat-cash').innerText = `$${db.cash}`;
-            document.getElementById('stat-sold').innerText = `${db.sold}L`;
-            document.getElementById('stat-prod').innerText = `${db.produced}L`;
+            document.getElementById('stat-sold').innerText = `${db.sold}`;
+            document.getElementById('stat-prod').innerText = `${db.produced}`;
 
-            // Tabla Inventario
             const tbodyInv = document.querySelector('#inv-table tbody');
             tbodyInv.innerHTML = '';
             db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(i => {
                 let rowColor = i.s < 5 ? 'color:red; font-weight:bold;' : '';
-                tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}L</td></tr>`;
+                tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}</td></tr>`;
             });
 
-            // Tabla Historial
             document.querySelector('#hist-table tbody').innerHTML = db.history.map(h => 
                 `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td style="font-weight:bold;">${h.m}</td></tr>`
             ).join('');
 
-            // Select de Producción
             const prodSel = document.getElementById('prod-flavor');
-            prodSel.innerHTML = db.inventory.map(i => `<option value="${i.n}">${i.n}</option>`).join('');
+            // Guardar selección actual si existe
+            const currentSel = prodSel.value;
+            prodSel.innerHTML = db.inventory.sort((a,b) => a.n.localeCompare(b.n)).map(i => `<option value="${i.n}">${i.n}</option>`).join('');
+            if(currentSel) prodSel.value = currentSel;
             
             updateCartUI();
         }
@@ -418,8 +496,10 @@
             a.click();
         }
 
-        // Inicio
-        setFilter('all');
+        // INICIO
+        // Seleccionamos Fruta por defecto
+        const firstBtn = document.querySelector('.filter-btn');
+        if(firstBtn) setFilter('fruta', firstBtn);
         updateUI();
     </script>
 </body>
