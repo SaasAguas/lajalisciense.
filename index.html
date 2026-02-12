@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Jalisciense</title>
+    <title>La Jalisciense - Sistema Pro</title>
     <style>
         /* --- TEMA LAVANDA --- */
         :root {
@@ -54,12 +54,10 @@
         .btn-success { background: var(--accent); color: #004d25; }
         .btn-danger { background: var(--danger); }
         
-        /* BOTÓN PEQUEÑO (Inventario) */
         .btn-sm {
             background: #E1BEE7; color: var(--primary);
             border: none; padding: 6px 14px; border-radius: 20px;
             font-weight: bold; font-size: 0.85rem; cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* FILTROS */
@@ -95,16 +93,13 @@
         }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* CONTROLES */
         .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
         .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); }
         
-        /* ESTADISTICAS GRID */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .stat-item { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 10px; font-size: 0.85rem; }
         .stat-val { display: block; font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
 
-        /* TABLAS */
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th, td { text-align: left; padding: 10px; border-bottom: 1px solid #f3e5f5; }
         .cart-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
@@ -209,8 +204,8 @@
         </div>
 
         <div class="card">
-            <h2>📝 Historial Detallado</h2>
-            <button onclick="downloadCSV()" style="background:none; border:none; color:var(--primary); text-decoration:underline; margin-bottom:10px; font-weight:bold;">Descargar Excel Profesional ⬇</button>
+            <h2>📝 Historial</h2>
+            <button onclick="downloadExcel()" style="background:none; border:none; color:var(--primary); text-decoration:underline; margin-bottom:10px; font-weight:bold;">Descargar Excel Profesional ⬇</button>
             <div style="max-height:250px; overflow-y:auto;">
                 <table id="hist-table"><tbody></tbody></table>
             </div>
@@ -242,11 +237,9 @@
     </nav>
 
     <script>
-        // --- DATA ---
-        const DB_KEY = 'jalisciense_final_v6';
+        const DB_KEY = 'jalisciense_final_v7';
         
         const realFlavors = [
-            // FRUTAS
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
             {n:'Lima', t:'fruta', s:20}, {n:'Fresa-Hierbabuena', t:'fruta', s:20}, {n:'Fresa', t:'fruta', s:20},
             {n:'Guayaba-Hierbabuena', t:'fruta', s:20}, {n:'Guayaba-Fresa', t:'fruta', s:20}, {n:'Piña-Alfalfa', t:'fruta', s:20},
@@ -255,32 +248,23 @@
             {n:'Piña-Naranja', t:'fruta', s:20}, {n:'Limón-Hierbabuena', t:'fruta', s:20}, {n:'Piña-Hierbabuena', t:'fruta', s:20},
             {n:'Limón-Chia', t:'fruta', s:20}, {n:'Limón Pepino', t:'fruta', s:20}, {n:'Piña Naranja H.', t:'fruta', s:20},
             {n:'Melón Cítrico', t:'fruta', s:20}, {n:'Lima-Stevia', t:'fruta', s:20},
-            
-            // CREMAS
             {n:'Horchata Fresa', t:'crema', s:15}, {n:'Horchata Arroz', t:'crema', s:15}, {n:'Vainilla', t:'crema', s:15},
             {n:'Mazapán', t:'crema', s:15}, {n:'Chai', t:'crema', s:15}, {n:'Taro', t:'crema', s:15},
             {n:'Coco c/ Nuez', t:'crema', s:15}, {n:'Cebada', t:'crema', s:15}, {n:'Kalhua', t:'crema', s:15},
             {n:'Crema Irlandesa', t:'crema', s:15},
-
-            // PALETAS
             {n:'Paleta-Leche', t:'paleta', s:20, p:30}, {n:'Paleta-Agua', t:'paleta', s:20, p:25},
             {n:'Fresas Con Crema', t:'paleta', s:20, p:25}, {n:'Sandwich', t:'paleta', s:20, p:20},
             {n:'Campana', t:'paleta', s:20, p:20}, {n:'Frapuchino', t:'paleta', s:20, p:10}
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            cash: 0, 
-            soldL: 0, soldP: 0, // Litros vs Piezas
-            prodL: 0, prodP: 0, // Prod Litros vs Prod Paletas
-            history: [],
-            inventory: realFlavors
+            cash: 0, soldL: 0, soldP: 0, prodL: 0, prodP: 0,
+            history: [], inventory: realFlavors
         };
 
-        if(db.inventory.length < realFlavors.length) { db.inventory = realFlavors; }
-
         let cart = [];
-        let prodMode = 'fruta'; // fruta, crema, paleta
-        let invView = 'fruta';  // fruta, crema, paleta
+        let prodMode = 'fruta';
+        let invView = 'fruta';
 
         function save() {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
@@ -295,265 +279,173 @@
             updateUI();
         }
 
-        // --- POS (VENTAS) ---
         function setFilter(type, btn) {
             const grid = document.getElementById('flavors-grid');
-            const priceContainer = document.getElementById('price-container');
-            const fixedMsg = document.getElementById('fixed-price-msg');
-            
+            const pc = document.getElementById('price-container');
+            const fm = document.getElementById('fixed-price-msg');
             grid.innerHTML = '';
-            
-            if(type === 'paleta') {
-                priceContainer.style.display = 'none';
-                fixedMsg.style.display = 'block';
-            } else {
-                priceContainer.style.display = 'block';
-                fixedMsg.style.display = 'none';
-            }
-
-            db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(item => {
+            if(type === 'paleta') { pc.style.display='none'; fm.style.display='block'; }
+            else { pc.style.display='block'; fm.style.display='none'; }
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(item => {
                 if(item.t !== type) return;
-                
                 const card = document.createElement('div');
                 card.className = 'flavor-card';
                 card.onclick = () => addToCart(item);
-                
-                let colorStyle = 'color:#2c2c2c';
-                let priceDisplay = '';
-                
-                if(item.t === 'crema') colorStyle = 'color:#AB47BC';
-                if(item.t === 'paleta') {
-                    colorStyle = 'color:#6A1B9A';
-                    priceDisplay = `<div style="color:#00E676; font-weight:bold; font-size:0.9rem;">$${item.p || 10}</div>`;
-                }
-                
-                card.innerHTML = `<strong style="${colorStyle}">${item.n}</strong><br>${priceDisplay}<span class="stock-badge">${item.s}</span>`;
+                let cs = item.t==='crema'?'color:#AB47BC':'color:#2c2c2c';
+                let pd = '';
+                if(item.t==='paleta') { cs='color:#6A1B9A'; pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`; }
+                card.innerHTML = `<strong style="${cs}">${item.n}</strong><br>${pd}<span class="stock-badge">${item.s}</span>`;
                 grid.appendChild(card);
             });
-
-            if(btn) {
-                document.querySelectorAll('#screen-pos .filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
+            if(btn) { document.querySelectorAll('#screen-pos .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
         }
 
         function addToCart(item) {
             if(item.s <= 0) return alert("Sin stock");
-            let price = (item.t === 'paleta') ? (item.p || 10) : parseFloat(document.getElementById('price-select').value);
-            
-            const existing = cart.find(c => c.name === item.n && c.price === price);
-            if(existing) {
-                if(existing.qty >= item.s) return alert("No hay más stock");
-                existing.qty++;
-            } else {
-                cart.push({name: item.n, price: price, qty: 1, type: item.t});
-            }
+            let price = (item.t==='paleta')?(item.p||10):parseFloat(document.getElementById('price-select').value);
+            const ex = cart.find(c=>c.name===item.n && c.price===price);
+            if(ex) { if(ex.qty>=item.s) return alert("No hay stock"); ex.qty++; }
+            else cart.push({name:item.n, price:price, qty:1, type:item.t});
             updateCartUI();
         }
 
         function updateCartUI() {
             const bar = document.getElementById('cart-bar');
-            if(cart.length > 0) {
-                bar.style.display = 'flex';
-                const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-                // Contar items total (mix litros y piezas)
-                const count = cart.reduce((acc, item) => acc + item.qty, 0);
-                document.getElementById('cart-total').innerText = `$${total}`;
-                document.getElementById('cart-count').innerText = `${count}`;
-            } else {
-                bar.style.display = 'none';
-            }
+            if(cart.length>0) {
+                bar.style.display='flex';
+                const t = cart.reduce((a,i)=>a+(i.price*i.qty),0);
+                const c = cart.reduce((a,i)=>a+i.qty,0);
+                document.getElementById('cart-total').innerText=`$${t}`;
+                document.getElementById('cart-count').innerText=c;
+            } else bar.style.display='none';
         }
 
         function showCheckout() {
             const list = document.getElementById('checkout-list');
-            list.innerHTML = '';
-            let total = 0;
-            if(cart.length === 0) return;
-            cart.forEach((item, index) => {
-                total += item.price * item.qty;
-                const unit = item.type === 'paleta' ? 'pz' : 'L';
-                list.innerHTML += `
-                    <div class="cart-list-item">
-                        <div><strong>${item.name}</strong><br>${item.qty}${unit} x $${item.price} = <b>$${item.price*item.qty}</b></div>
-                        <button class="delete-btn" onclick="removeFromCart(${index})">✕</button>
-                    </div>`;
+            list.innerHTML = ''; let t = 0;
+            cart.forEach((i, idx) => {
+                t += i.price*i.qty;
+                const u = i.type==='paleta'?'pz':'L';
+                list.innerHTML += `<div class="cart-list-item"><div><strong>${i.name}</strong><br>${i.qty}${u} x $${i.price} = $${i.price*i.qty}</div><button class="delete-btn" onclick="removeFromCart(${idx})">✕</button></div>`;
             });
-            document.getElementById('checkout-total').innerText = `Total: $${total}`;
-            document.getElementById('checkout-modal').style.display = 'flex';
+            document.getElementById('checkout-total').innerText = `Total: $${t}`;
+            document.getElementById('checkout-modal').style.display='flex';
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
-            if(cart.length === 0) document.getElementById('checkout-modal').style.display = 'none';
+        function removeFromCart(idx) {
+            cart.splice(idx,1); updateCartUI();
+            if(cart.length===0) document.getElementById('checkout-modal').style.display='none';
             else showCheckout();
         }
 
         function finishSale() {
-            let totalCash = 0;
-            let tempSoldL = 0;
-            let tempSoldP = 0;
-            let detailArr = [];
-
+            let tc = 0, tl = 0, tp = 0, det = [];
             cart.forEach(c => {
-                const invItem = db.inventory.find(i => i.n === c.name);
-                if(invItem) invItem.s -= c.qty;
-                
-                totalCash += c.price * c.qty;
-                
-                if(c.type === 'paleta') {
-                    tempSoldP += c.qty;
-                    detailArr.push(`${c.qty}pz ${c.name}`);
-                } else {
-                    tempSoldL += c.qty;
-                    detailArr.push(`${c.qty}L ${c.name}`);
-                }
+                const i = db.inventory.find(inv=>inv.n===c.name);
+                if(i) i.s -= c.qty;
+                tc += c.price*c.qty;
+                if(c.type==='paleta') { tp+=c.qty; det.push(`${c.qty}pz ${c.name}`); }
+                else { tl+=c.qty; det.push(`${c.qty}L ${c.name}`); }
             });
-
-            db.cash += totalCash;
-            db.soldL += tempSoldL;
-            db.soldP += tempSoldP;
-            
-            // Texto detallado para el Excel
-            const detailText = detailArr.join(" + ");
-
-            db.history.unshift({
-                d: new Date().toLocaleTimeString(),
-                a: 'VENTA',
-                det: detailText,
-                m: `+$${totalCash}`
-            });
-
-            cart = [];
-            document.getElementById('checkout-modal').style.display = 'none';
-            save();
-            alert("✅ Venta registrada");
-            const activeBtn = document.querySelector('#screen-pos .filter-btn.active');
-            if(activeBtn) activeBtn.click();
+            db.cash+=tc; db.soldL+=tl; db.soldP+=tp;
+            db.history.unshift({d:new Date().toLocaleTimeString(), a:'VENTA', det:det.join(" + "), m:`+$${tc}`});
+            cart=[]; document.getElementById('checkout-modal').style.display='none';
+            save(); alert("Venta registrada");
+            const ab = document.querySelector('#screen-pos .filter-btn.active');
+            if(ab) ab.click();
         }
 
-        // --- PRODUCCIÓN (3 Pestañas) ---
-        function setProdMode(mode) {
-            prodMode = mode;
-            // Reset buttons
-            ['fruta','crema','paleta'].forEach(m => {
-                document.getElementById(`btn-prod-${m}`).className = 'filter-btn' + (m===mode ? ' active' : '');
+        function setProdMode(m) {
+            prodMode = m;
+            ['fruta','crema','paleta'].forEach(mode => {
+                document.getElementById(`btn-prod-${mode}`).className = 'filter-btn' + (mode===m?' active':'');
             });
-            
-            let subtitle = "Producción";
-            if(mode === 'fruta') subtitle = "Producción de Fruta";
-            if(mode === 'crema') subtitle = "Producción de Crema";
-            if(mode === 'paleta') subtitle = "Relleno de Paletas/Otros";
-            document.getElementById('prod-subtitle').innerText = subtitle;
-
+            document.getElementById('prod-subtitle').innerText = m==='paleta'?'Relleno de Paletas':'Producción de '+m;
             renderProdSelect();
         }
 
         function renderProdSelect() {
-            const prodSel = document.getElementById('prod-flavor');
-            prodSel.innerHTML = '';
-            db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(item => {
-                if(item.t === prodMode) {
-                    prodSel.innerHTML += `<option value="${item.n}">${item.n}</option>`;
-                }
+            const s = document.getElementById('prod-flavor');
+            s.innerHTML = '';
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
+                if(i.t===prodMode) s.innerHTML += `<option value="${i.n}">${i.n}</option>`;
             });
         }
 
-        function adjustProd(amount) {
-            const input = document.getElementById('prod-qty');
-            let val = parseInt(input.value) + amount;
-            if(val < 1) val = 1;
-            input.value = val;
+        function adjustProd(a) {
+            const i = document.getElementById('prod-qty');
+            let v = parseInt(i.value)+a; if(v<1) v=1; i.value=v;
         }
 
         function saveProduction() {
-            const name = document.getElementById('prod-flavor').value;
-            const qty = parseInt(document.getElementById('prod-qty').value);
-            const item = db.inventory.find(i => i.n === name);
-            if(item) {
-                item.s += qty;
-                
-                if(item.t === 'paleta') db.prodP += qty;
-                else db.prodL += qty;
-
-                const unit = item.t === 'paleta' ? 'pz' : 'L';
-                db.history.unshift({d: new Date().toLocaleTimeString(), a:'PROD', det:`${qty}${unit} ${name}`, m:'-'});
-                save();
-                alert(`🏭 +${qty} ${name} agregados.`);
+            const n = document.getElementById('prod-flavor').value;
+            const q = parseInt(document.getElementById('prod-qty').value);
+            const i = db.inventory.find(inv=>inv.n===n);
+            if(i) {
+                i.s += q;
+                if(i.t==='paleta') db.prodP += q; else db.prodL += q;
+                const u = i.t==='paleta'?'pz':'L';
+                db.history.unshift({d:new Date().toLocaleTimeString(), a:'PROD', det:`${q}${u} ${n}`, m:'-'});
+                save(); alert("Guardado");
             }
         }
 
-        // --- ADMIN / INVENTARIO (3 Vistas) ---
         function toggleInvView() {
-            // Ciclo: Fruta -> Crema -> Paleta -> Fruta
-            if(invView === 'fruta') invView = 'crema';
-            else if(invView === 'crema') invView = 'paleta';
-            else invView = 'fruta';
+            if(invView==='fruta') invView='crema'; else if(invView==='crema') invView='paleta'; else invView='fruta';
             updateUI();
         }
 
         function updateUI() {
-            // Stats Separados
-            document.getElementById('stat-cash').innerText = `$${db.cash}`;
-            document.getElementById('stat-sold-l').innerText = `${db.soldL || 0} L`;
-            document.getElementById('stat-sold-p').innerText = `${db.soldP || 0} Pz`;
-            document.getElementById('stat-prod-l').innerText = `${db.prodL || 0} L`;
-            document.getElementById('stat-prod-p').innerText = `${db.prodP || 0} Pz`;
-
-            // Inventario Dinámico
-            let title = "Inventario de Fruta";
-            if(invView === 'crema') title = "Inventario de Crema";
-            if(invView === 'paleta') title = "Inventario de Paletas";
-            document.getElementById('inv-title').innerText = title;
-
-            const tbodyInv = document.querySelector('#inv-table tbody');
-            tbodyInv.innerHTML = '';
-            
-            db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(i => {
-                if(i.t === invView) {
-                    let rowColor = i.s < 5 ? 'color:red; font-weight:bold;' : '';
-                    tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}</td></tr>`;
+            document.getElementById('stat-cash').innerText=`$${db.cash}`;
+            document.getElementById('stat-sold-l').innerText=`${db.soldL} L`;
+            document.getElementById('stat-sold-p').innerText=`${db.soldP} Pz`;
+            document.getElementById('stat-prod-l').innerText=`${db.prodL} L`;
+            document.getElementById('stat-prod-p').innerText=`${db.prodP} Pz`;
+            document.getElementById('inv-title').innerText='Inventario de '+invView;
+            const tb = document.querySelector('#inv-table tbody');
+            tb.innerHTML = '';
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
+                if(i.t===invView) {
+                    let rc = i.s<5?'color:red;font-weight:bold;':'';
+                    tb.innerHTML += `<tr><td>${i.n}</td><td style="${rc}">${i.s}</td></tr>`;
                 }
             });
-
-            // Historial
             document.querySelector('#hist-table tbody').innerHTML = db.history.map(h => 
                 `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td style="font-weight:bold;">${h.m}</td></tr>`
             ).join('');
-
-            renderProdSelect();
-            updateCartUI();
+            renderProdSelect(); updateCartUI();
         }
 
         function closeDay() {
-            if(!confirm("¿Cerrar caja? Se reiniciará el dinero.")) return;
-            db.history.unshift({d: new Date().toLocaleTimeString(), a:'CIERRE', det:'--- CORTE ---', m:'$0'});
-            db.cash = 0; db.soldL = 0; db.soldP = 0; db.prodL = 0; db.prodP = 0;
-            save();
+            if(!confirm("Cerrar caja?")) return;
+            db.history.unshift({d:new Date().toLocaleTimeString(), a:'CIERRE', det:'--- CORTE ---', m:'$0'});
+            db.cash=0; db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; save();
         }
 
-        function downloadCSV() {
-            // Agregar BOM para que Excel reconozca tildes (\uFEFF)
-            let csv = "\uFEFFHora,Accion,Descripcion,Monto\n";
+        function downloadExcel() {
+            let table = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="utf-8">
+            <style>
+                table { border-collapse: collapse; width: 100%; font-family: Arial; }
+                th { background-color: #6A1B9A; color: white; padding: 12px; border: 1px solid #ddd; }
+                td { border: 1px solid #ddd; padding: 10px; vertical-align: middle; }
+                .m { font-weight: bold; }
+            </style>
+            </head>
+            <body><table><thead><tr><th>Hora</th><th>Acción</th><th>Descripción</th><th>Monto</th></tr></thead><tbody>`;
             db.history.forEach(h => {
-                // Comillas para evitar que las comas del detalle rompan el CSV
-                csv += `${h.d},${h.a},"${h.det}",${h.m}\n`;
+                table += `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td class="m">${h.m}</td></tr>`;
             });
-            
-            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-            const url = window.URL.createObjectURL(blob);
+            table += `</tbody></table></body></html>`;
+            const b = new Blob([table], { type: 'application/vnd.ms-excel' });
+            const u = window.URL.createObjectURL(b);
             const a = document.createElement('a');
-            a.href = url; 
-            a.download = `Corte_LaJalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+            a.href=u; a.download=`Corte_LaJalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.xls`;
             a.click();
         }
 
-        // INICIO
-        const firstBtn = document.querySelector('.filter-btn');
-        if(firstBtn) setFilter('fruta', firstBtn);
-        // Inicializar DB si viene de version vieja
-        if(db.soldL === undefined) { db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; }
+        setFilter('fruta', document.querySelector('.filter-btn'));
         updateUI();
     </script>
 </body>
