@@ -241,8 +241,8 @@
     </nav>
 
     <script>
-        // --- BASE DE DATOS (V9 - Sin Frapuchino) ---
-        const DB_KEY = 'jalisciense_final_v9';
+        // --- BASE DE DATOS (V8.1 - Frapuchino Solo en Venta) ---
+        const DB_KEY = 'jalisciense_final_v8.1';
         
         const realFlavors = [
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -259,7 +259,9 @@
             {n:'Crema Irlandesa', t:'crema', s:15},
             {n:'Paleta-Leche', t:'paleta', s:20, p:30}, {n:'Paleta-Agua', t:'paleta', s:20, p:25},
             {n:'Fresas Con Crema', t:'paleta', s:20, p:25}, {n:'Sandwich', t:'paleta', s:20, p:20},
-            {n:'Campana', t:'paleta', s:20, p:20}
+            {n:'Campana', t:'paleta', s:20, p:20},
+            // Frapuchino tiene 's: 999' para que nunca se acabe y no aparezca en inventario
+            {n:'Frapuchino', t:'paleta', s:999, p:10, hidden: true}
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
@@ -270,9 +272,6 @@
         let cart = [];
         let prodMode = 'fruta';
         let invView = 'fruta';
-
-        // Validar integridad de datos
-        if(!db.inventory || db.inventory.length < 5) db.inventory = realFlavors;
 
         function save() {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
@@ -303,7 +302,11 @@
                 let cs = item.t==='crema'?'color:#AB47BC':'color:#2c2c2c';
                 let pd = '';
                 if(item.t==='paleta') { cs='color:#6A1B9A'; pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`; }
-                card.innerHTML = `<strong style="${cs}">${item.n}</strong><br>${pd}<span class="stock-badge">${item.s}</span>`;
+                
+                // Si es el frapuchino ocultamos el stock
+                let stockDisp = item.hidden ? "♾️" : item.s;
+                
+                card.innerHTML = `<strong style="${cs}">${item.n}</strong><br>${pd}<span class="stock-badge">${stockDisp}</span>`;
                 grid.appendChild(card);
             });
             if(btn) { document.querySelectorAll('#screen-pos .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
@@ -314,7 +317,7 @@
             let price = (item.t==='paleta')?(item.p||10):parseFloat(document.getElementById('price-select').value);
             const ex = cart.find(c=>c.name===item.n && c.price===price);
             if(ex) { if(ex.qty>=item.s) return alert("No hay stock"); ex.qty++; }
-            else cart.push({name:item.n, price:price, qty:1, type:item.t});
+            else cart.push({name:item.n, price:price, qty:1, type:item.t, isHidden: item.hidden});
             updateCartUI();
         }
 
@@ -351,7 +354,9 @@
             let tc = 0, tl = 0, tp = 0, det = [];
             cart.forEach(c => {
                 const i = db.inventory.find(inv=>inv.n===c.name);
-                if(i) i.s -= c.qty;
+                // Si no es un producto oculto (como frapuchino), descontamos stock
+                if(i && !i.hidden) i.s -= c.qty;
+                
                 tc += c.price*c.qty;
                 if(c.type==='paleta') { tp+=c.qty; det.push(`${c.qty}pz ${c.name}`); }
                 else { tl+=c.qty; det.push(`${c.qty}L ${c.name}`); }
@@ -377,7 +382,8 @@
             const s = document.getElementById('prod-flavor');
             s.innerHTML = '';
             db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
-                if(i.t===prodMode) s.innerHTML += `<option value="${i.n}">${i.n}</option>`;
+                // Solo mostramos en producción lo que NO está oculto
+                if(i.t===prodMode && !i.hidden) s.innerHTML += `<option value="${i.n}">${i.n}</option>`;
             });
         }
 
@@ -413,8 +419,10 @@
             document.getElementById('inv-title').innerText='Inventario de '+invView;
             const tb = document.querySelector('#inv-table tbody');
             tb.innerHTML = '';
+            
             db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
-                if(i.t===invView) {
+                // Solo mostramos en inventario lo que NO está oculto
+                if(i.t===invView && !i.hidden) {
                     let rc = i.s<5?'color:red;font-weight:bold;':'';
                     tb.innerHTML += `<tr><td>${i.n}</td><td style="${rc}">${i.s}</td></tr>`;
                 }
@@ -442,19 +450,15 @@
         }
 
         function downloadExcel() {
-            // Generar CSV Universal con BOM para acentos y separador ;
             let csv = "\uFEFFFecha,Accion,Detalle,Monto\n";
             db.history.forEach(h => {
-                // Reemplazamos comas internas por espacios para no romper columnas
                 let cleanDet = h.det.replace(/,/g, ' '); 
                 csv += `${h.d},${h.a},"${cleanDet}",${h.m}\n`;
             });
-            
             const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; 
-            a.download = `Corte_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+            a.href = url; a.download = `Corte_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
             a.click();
         }
 
