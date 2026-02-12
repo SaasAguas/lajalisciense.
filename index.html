@@ -5,38 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>La Jalisciense</title>
     <style>
-        /* --- TEMA LAVANDA (COLORES) --- */
+        /* --- TEMA LAVANDA --- */
         :root {
-            --primary: #6A1B9A; /* Morado Intenso */
+            --primary: #6A1B9A; 
             --primary-light: #AB47BC;
-            --accent: #00E676;  /* Verde Venta */
-            --bg: #F3E5F5;      /* Fondo Lavanda */
-            --text: #2c2c2c;    /* Texto oscuro */
-            --card-bg: #FFFFFF; /* Blanco puro */
+            --accent: #00E676;
+            --bg: #F3E5F5;
+            --text: #2c2c2c;
+            --card-bg: #FFFFFF;
             --danger: #FF5252;
         }
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            padding-bottom: 90px; 
+            margin: 0; background-color: var(--bg); color: var(--text); padding-bottom: 90px; 
         }
         
-        /* NAVEGACIÓN FIJA ABAJO */
+        /* NAVEGACIÓN */
         nav { 
             position: fixed; bottom: 0; width: 100%; 
-            background: var(--card-bg); 
-            display: flex; justify-content: space-around; 
-            padding: 10px 0; 
-            border-top: 1px solid #eee; 
-            z-index: 1000; 
+            background: var(--card-bg); display: flex; justify-content: space-around; 
+            padding: 10px 0; border-top: 1px solid #eee; z-index: 1000; 
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05); 
         }
         .nav-btn { 
-            background: none; border: none; 
-            font-size: 0.8rem; 
+            background: none; border: none; font-size: 0.8rem; 
             display: flex; flex-direction: column; align-items: center; 
             color: #999; width: 33%; 
         }
@@ -48,99 +41,74 @@
         .active-screen { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* TARJETAS */
+        /* CARDS */
         .card { 
-            background: var(--card-bg); 
-            padding: 15px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 6px rgba(106, 27, 154, 0.05); 
-            margin-bottom: 15px; 
+            background: var(--card-bg); padding: 15px; border-radius: 15px; 
+            box-shadow: 0 4px 6px rgba(106, 27, 154, 0.05); margin-bottom: 15px; 
         }
-        h2 { margin-top: 0; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid #f3e5f5; padding-bottom: 10px;}
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.3rem; }
         
-        /* BOTONES GENERALES */
+        /* BOTONES */
         .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; color: white; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); }
         .btn-success { background: var(--accent); color: #004d25; }
         .btn-danger { background: var(--danger); }
+        
+        /* BOTÓN PEQUEÑO (Para el inventario) */
+        .btn-sm {
+            background: #E1BEE7; color: var(--primary);
+            border: none; padding: 5px 12px; border-radius: 20px;
+            font-weight: bold; font-size: 0.8rem; cursor: pointer;
+        }
 
-        /* BOTONES DE FILTRO */
+        /* FILTROS */
         .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
         .filter-btn {
-            flex: 1;
-            padding: 12px 5px;
-            border: none;
-            border-radius: 12px;
-            background-color: #E1BEE7; 
-            color: #4A148C;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
+            flex: 1; padding: 12px 5px; border: none; border-radius: 12px;
+            background-color: #E1BEE7; color: #4A148C;
+            font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
         }
         .filter-btn.active {
-            background-color: var(--primary); 
-            color: white;
-            box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3);
-            transform: scale(1.05);
+            background-color: var(--primary); color: white;
+            transform: scale(1.05); box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3);
         }
 
-        /* GRID DE SABORES */
+        /* GRID SABORES */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .flavor-card { 
-            background: white; 
-            padding: 15px 10px; 
-            border-radius: 12px; 
-            text-align: center; 
-            border: 1px solid #eee; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            position: relative; 
+            background: white; padding: 15px 10px; border-radius: 12px; 
+            text-align: center; border: 1px solid #eee; position: relative;
         }
         .flavor-card:active { background-color: #E1BEE7; border-color: var(--primary); transform: scale(0.98); }
         .stock-badge { 
-            font-size: 0.85rem; 
-            background: #f3e5f5; color: var(--primary); 
-            padding: 2px 8px; border-radius: 8px; 
-            display: inline-block; margin-top: 5px; font-weight: bold;
+            font-size: 0.85rem; background: #f3e5f5; color: var(--primary); 
+            padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 5px; font-weight: bold;
         }
         
-        /* BARRA FLOTANTE CARRITO */
+        /* CARRITO */
         .cart-bar { 
             position: fixed; bottom: 75px; left: 15px; right: 15px; 
-            background: var(--primary); color: white; 
-            padding: 15px; border-radius: 50px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            display: none; 
-            box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4); 
-            z-index: 900; 
-            animation: slideUp 0.3s;
+            background: var(--primary); color: white; padding: 15px; 
+            border-radius: 50px; display: none; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4); z-index: 900; animation: slideUp 0.3s;
         }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         /* CONTROLES CANTIDAD */
         .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
-        .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); }
         
-        /* TABLAS Y LISTAS */
+        /* TABLAS */
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th, td { text-align: left; padding: 10px; border-bottom: 1px solid #f3e5f5; }
         
         .cart-list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;
         }
         .delete-btn {
-            background: var(--danger); color: white;
-            border: none; border-radius: 8px;
-            width: 35px; height: 35px;
-            font-weight: bold; font-size: 1.2rem;
-            margin-left: 10px;
-            display: flex; align-items: center; justify-content: center;
+            background: var(--danger); color: white; border: none; border-radius: 8px;
+            width: 35px; height: 35px; font-weight: bold; font-size: 1.2rem; margin-left: 10px;
         }
-
-        /* CONTENEDOR PRECIO (Para ocultarlo) */
-        #price-container { transition: opacity 0.3s; }
-        .price-hidden { display: none; }
     </style>
 </head>
 <body>
@@ -173,15 +141,20 @@
     </div>
 
     <div id="cart-bar" class="cart-bar" onclick="showCheckout()">
-        <span id="cart-count" style="background:white; color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:bold;">0 L</span>
+        <span id="cart-count" style="background:white; color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:bold;">0</span>
         <strong id="cart-total" style="font-size:1.1rem;">$0</strong>
         <span style="font-weight:bold;">Ver Carrito 🛒</span>
     </div>
 
     <div id="screen-prod" class="screen">
         <div class="card">
-            <h2>🏭 Registrar Producción</h2>
-            <p style="font-size:0.9rem; color:#666;">Ingresa la cantidad para sumar al inventario.</p>
+            <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
+                <button id="btn-prod-aguas" class="filter-btn active" onclick="setProdMode('aguas')">Aguas 💧</button>
+                <button id="btn-prod-paletas" class="filter-btn" onclick="setProdMode('paletas')">Paletas 🍭</button>
+            </div>
+
+            <h2 id="prod-title">Producción de Aguas</h2>
+            <p style="font-size:0.9rem; color:#666;">Registra lo fabricado para el inventario.</p>
             
             <label style="font-weight:bold; color:var(--primary);">Producto:</label>
             <select id="prod-flavor" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:10px; background:white;"></select>
@@ -202,15 +175,18 @@
             <h2 style="color:white; border-bottom-color: rgba(255,255,255,0.2);">Caja Actual</h2>
             <h1 id="stat-cash" style="font-size:3rem; margin:10px 0;">$0</h1>
             <div style="display:flex; justify-content:space-around; margin-bottom:15px; font-size:0.9rem; opacity:0.9;">
-                <span>Vendidos: <b id="stat-sold">0</b></span>
-                <span>Fabricados: <b id="stat-prod">0</b></span>
+                <span>Ventas: <b id="stat-sold">0</b></span>
+                <span>Fab: <b id="stat-prod">0</b></span>
             </div>
             <button class="btn" style="background:rgba(255,255,255,0.2); color:white;" onclick="closeDay()">🔒 Corte de Caja</button>
         </div>
 
         <div class="card">
-            <h2>📦 Inventario</h2>
-            <div style="max-height:250px; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f3e5f5; padding-bottom:10px; margin-bottom:10px;">
+                <h2 style="margin:0; border:none;" id="inv-title">Inventario De Aguas</h2>
+                <button class="btn-sm" onclick="toggleInvView()">🔄 Cambiar</button>
+            </div>
+            <div style="max-height:300px; overflow-y:auto;">
                 <table id="inv-table"><tbody></tbody></table>
             </div>
         </div>
@@ -227,11 +203,8 @@
     <div id="checkout-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
         <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
             <h3 style="margin-top:0; color:var(--primary);">🛒 Confirmar Venta</h3>
-            
             <div id="checkout-list" style="max-height: 250px; overflow-y: auto; margin-bottom:20px;"></div>
-
             <div style="text-align:right; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:1px solid #eee; padding-top:10px;" id="checkout-total">Total: $0</div>
-            
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('checkout-modal').style.display='none'">Cerrar</button>
                 <button class="btn btn-success" style="margin:0;" onclick="finishSale()">Cobrar</button>
@@ -252,11 +225,9 @@
     </nav>
 
     <script>
-        // --- BASE DE DATOS LOCAL ---
-        // V4 para actualizar precios fijos
-        const DB_KEY = 'jalisciense_final_v4';
+        // --- DATA ---
+        const DB_KEY = 'jalisciense_final_v5';
         
-        // p: precio fijo (opcional)
         const realFlavors = [
             // FRUTAS
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -274,13 +245,10 @@
             {n:'Coco c/ Nuez', t:'crema', s:15}, {n:'Cebada', t:'crema', s:15}, {n:'Kalhua', t:'crema', s:15},
             {n:'Crema Irlandesa', t:'crema', s:15},
 
-            // PALETAS Y OTROS (Precios Fijos)
-            {n:'Paleta-Leche', t:'paleta', s:20, p:30},
-            {n:'Paleta-Agua', t:'paleta', s:20, p:25},
-            {n:'Fresas Con Crema', t:'paleta', s:20, p:25},
-            {n:'Sandwich', t:'paleta', s:20, p:20},
-            {n:'Campana', t:'paleta', s:20, p:20},
-            {n:'Frapuchino', t:'paleta', s:20, p:10}
+            // PALETAS
+            {n:'Paleta-Leche', t:'paleta', s:20, p:30}, {n:'Paleta-Agua', t:'paleta', s:20, p:25},
+            {n:'Fresas Con Crema', t:'paleta', s:20, p:25}, {n:'Sandwich', t:'paleta', s:20, p:20},
+            {n:'Campana', t:'paleta', s:20, p:20}, {n:'Frapuchino', t:'paleta', s:20, p:10}
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
@@ -292,6 +260,8 @@
         if(db.inventory.length < realFlavors.length) { db.inventory = realFlavors; }
 
         let cart = [];
+        let prodMode = 'aguas'; // 'aguas' | 'paletas'
+        let invView = 'aguas';  // 'aguas' | 'paletas'
 
         function save() {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
@@ -306,7 +276,7 @@
             updateUI();
         }
 
-        // --- FILTROS Y LÓGICA DE PRECIOS ---
+        // --- POS (VENTAS) ---
         function setFilter(type, btn) {
             const grid = document.getElementById('flavors-grid');
             const priceContainer = document.getElementById('price-container');
@@ -314,18 +284,15 @@
             
             grid.innerHTML = '';
             
-            // Lógica de Mostrar/Ocultar precios
             if(type === 'paleta') {
-                priceContainer.style.display = 'none'; // Ocultar selector
-                fixedMsg.style.display = 'block'; // Mostrar mensaje "Precios Fijos"
+                priceContainer.style.display = 'none';
+                fixedMsg.style.display = 'block';
             } else {
-                priceContainer.style.display = 'block'; // Mostrar selector
+                priceContainer.style.display = 'block';
                 fixedMsg.style.display = 'none';
             }
 
-            const sortedInv = db.inventory.sort((a,b) => a.n.localeCompare(b.n));
-
-            sortedInv.forEach(item => {
+            db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(item => {
                 if(item.t !== type) return;
                 
                 const card = document.createElement('div');
@@ -336,40 +303,24 @@
                 let priceDisplay = '';
                 
                 if(item.t === 'crema') colorStyle = 'color:#AB47BC';
-                
-                // Si es paleta, mostramos el precio en la tarjeta
                 if(item.t === 'paleta') {
                     colorStyle = 'color:#6A1B9A';
                     priceDisplay = `<div style="color:#00E676; font-weight:bold; font-size:0.9rem;">$${item.p || 10}</div>`;
                 }
                 
-                card.innerHTML = `
-                    <strong style="${colorStyle}">${item.n}</strong><br>
-                    ${priceDisplay}
-                    <span class="stock-badge">${item.s}</span>
-                `;
+                card.innerHTML = `<strong style="${colorStyle}">${item.n}</strong><br>${priceDisplay}<span class="stock-badge">${item.s}</span>`;
                 grid.appendChild(card);
             });
 
             if(btn) {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#screen-pos .filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
         }
 
         function addToCart(item) {
             if(item.s <= 0) return alert("Sin stock");
-            
-            let price;
-            
-            // SI ES PALETA: Usamos su precio fijo (o 10 si no tiene)
-            if(item.t === 'paleta') {
-                price = item.p || 10;
-            } 
-            // SI ES AGUA: Usamos el selector
-            else {
-                price = parseFloat(document.getElementById('price-select').value);
-            }
+            let price = (item.t === 'paleta') ? (item.p || 10) : parseFloat(document.getElementById('price-select').value);
             
             const existing = cart.find(c => c.name === item.n && c.price === price);
             if(existing) {
@@ -394,25 +345,18 @@
             }
         }
 
-        // --- CARRITO ---
         function showCheckout() {
             const list = document.getElementById('checkout-list');
             list.innerHTML = '';
             let total = 0;
-            
             if(cart.length === 0) return;
-
             cart.forEach((item, index) => {
                 total += item.price * item.qty;
                 list.innerHTML += `
                     <div class="cart-list-item">
-                        <div>
-                            <strong>${item.name}</strong><br>
-                            ${item.qty} x $${item.price} = <b>$${item.price*item.qty}</b>
-                        </div>
+                        <div><strong>${item.name}</strong><br>${item.qty} x $${item.price} = <b>$${item.price*item.qty}</b></div>
                         <button class="delete-btn" onclick="removeFromCart(${index})">✕</button>
-                    </div>
-                `;
+                    </div>`;
             });
             document.getElementById('checkout-total').innerText = `Total: $${total}`;
             document.getElementById('checkout-modal').style.display = 'flex';
@@ -421,42 +365,51 @@
         function removeFromCart(index) {
             cart.splice(index, 1);
             updateCartUI();
-            if(cart.length === 0) {
-                document.getElementById('checkout-modal').style.display = 'none';
-            } else {
-                showCheckout();
-            }
+            if(cart.length === 0) document.getElementById('checkout-modal').style.display = 'none';
+            else showCheckout();
         }
 
         function finishSale() {
-            let totalCash = 0;
-            let totalItems = 0;
-
+            let totalCash = 0; let totalItems = 0;
             cart.forEach(c => {
                 const invItem = db.inventory.find(i => i.n === c.name);
                 if(invItem) invItem.s -= c.qty;
                 totalCash += c.price * c.qty;
                 totalItems += c.qty;
             });
-
-            db.cash += totalCash;
-            db.sold += totalItems;
-            db.history.unshift({
-                d: new Date().toLocaleTimeString(),
-                a: 'VENTA',
-                det: `${totalItems} items`,
-                m: `+$${totalCash}`
-            });
-
+            db.cash += totalCash; db.sold += totalItems;
+            db.history.unshift({d: new Date().toLocaleTimeString(), a:'VENTA', det:`${totalItems} items`, m:`+$${totalCash}`});
             cart = [];
             document.getElementById('checkout-modal').style.display = 'none';
             save();
             alert("✅ Venta registrada");
-            const activeBtn = document.querySelector('.filter-btn.active');
-            if(activeBtn) setFilter(activeBtn.innerText.includes('Fruta') ? 'fruta' : (activeBtn.innerText.includes('Crema') ? 'crema' : 'paleta'), activeBtn);
+            // Refrescar filtro
+            const activeBtn = document.querySelector('#screen-pos .filter-btn.active');
+            if(activeBtn) activeBtn.click();
         }
 
-        // --- ADMIN & PROD ---
+        // --- PRODUCCIÓN (SEPARADA) ---
+        function setProdMode(mode) {
+            prodMode = mode;
+            document.getElementById('btn-prod-aguas').className = (mode === 'aguas') ? 'filter-btn active' : 'filter-btn';
+            document.getElementById('btn-prod-paletas').className = (mode === 'paletas') ? 'filter-btn active' : 'filter-btn';
+            
+            document.getElementById('prod-title').innerText = (mode === 'aguas') ? 'Producción de Aguas' : 'Producción de Paletas';
+            renderProdSelect();
+        }
+
+        function renderProdSelect() {
+            const prodSel = document.getElementById('prod-flavor');
+            prodSel.innerHTML = '';
+            db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(item => {
+                if(prodMode === 'aguas' && (item.t === 'fruta' || item.t === 'crema')) {
+                    prodSel.innerHTML += `<option value="${item.n}">${item.n}</option>`;
+                } else if (prodMode === 'paletas' && item.t === 'paleta') {
+                    prodSel.innerHTML += `<option value="${item.n}">${item.n}</option>`;
+                }
+            });
+        }
+
         function adjustProd(amount) {
             const input = document.getElementById('prod-qty');
             let val = parseInt(input.value) + amount;
@@ -477,27 +430,42 @@
             }
         }
 
+        // --- ADMIN / INVENTARIO (SEPARADO) ---
+        function toggleInvView() {
+            invView = (invView === 'aguas') ? 'paletas' : 'aguas';
+            updateUI();
+        }
+
         function updateUI() {
+            // Admin Stats
             document.getElementById('stat-cash').innerText = `$${db.cash}`;
             document.getElementById('stat-sold').innerText = `${db.sold}`;
             document.getElementById('stat-prod').innerText = `${db.produced}`;
-            
+
+            // Inventario
+            document.getElementById('inv-title').innerText = (invView === 'aguas') ? 'Inventario De Aguas' : 'Inventario De Paletas';
             const tbodyInv = document.querySelector('#inv-table tbody');
             tbodyInv.innerHTML = '';
+            
             db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(i => {
-                let rowColor = i.s < 5 ? 'color:red; font-weight:bold;' : '';
-                tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}</td></tr>`;
+                // Filtro de vista
+                let show = false;
+                if(invView === 'aguas' && (i.t === 'fruta' || i.t === 'crema')) show = true;
+                if(invView === 'paletas' && i.t === 'paleta') show = true;
+
+                if(show) {
+                    let rowColor = i.s < 5 ? 'color:red; font-weight:bold;' : '';
+                    tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}</td></tr>`;
+                }
             });
 
+            // Historial
             document.querySelector('#hist-table tbody').innerHTML = db.history.map(h => 
                 `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td style="font-weight:bold;">${h.m}</td></tr>`
             ).join('');
 
-            const prodSel = document.getElementById('prod-flavor');
-            const currentSel = prodSel.value;
-            prodSel.innerHTML = db.inventory.sort((a,b) => a.n.localeCompare(b.n)).map(i => `<option value="${i.n}">${i.n}</option>`).join('');
-            if(currentSel) prodSel.value = currentSel;
-            
+            // Refrescar producción
+            renderProdSelect();
             updateCartUI();
         }
 
@@ -513,7 +481,7 @@
             const blob = new Blob([csv], {type: 'text/csv'});
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `corte_${new Date().toLocaleDateString()}.csv`;
+            a.href = url; a.download = `corte.csv`;
             a.click();
         }
 
