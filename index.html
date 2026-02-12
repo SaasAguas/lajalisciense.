@@ -5,262 +5,422 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>La Jalisciense</title>
     <style>
-        /* --- TEMA LAVANDA & ESTILO MODERNO --- */
+        /* --- TEMA LAVANDA (COLORES NUEVOS) --- */
         :root {
             --primary: #6A1B9A; /* Morado Intenso */
-            --primary-light: #9C4DCC;
-            --accent: #00E676; /* Verde Venta */
-            --bg: #F3E5F5; /* Lavanda Suave */
-            --card-bg: #FFFFFF;
-            --text: #2c2c2c;
+            --accent: #00E676;  /* Verde Venta */
+            --bg: #F3E5F5;      /* Fondo Lavanda */
+            --text: #2c2c2c;    /* Texto oscuro (anti modo noche) */
+            --card-bg: #FFFFFF; /* Blanco puro */
             --danger: #FF5252;
         }
 
-        /* Reset y Base */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding-bottom: 90px; /* Espacio para el menú de abajo */
-            overscroll-behavior-y: none; /* Evita rebote en iPhone */
+        /* RESET PARA EVITAR MODO OSCURO AUTOMÁTICO */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            padding-bottom: 80px; 
         }
-
-        /* Encabezado */
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 10px rgba(106, 27, 154, 0.3);
-            margin-bottom: 20px;
+        
+        /* NAVEGACIÓN FIJA ABAJO */
+        nav { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: var(--card-bg); 
+            display: flex; justify-content: space-around; 
+            padding: 10px 0; 
+            border-top: 1px solid #eee; 
+            z-index: 1000; 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); 
         }
-        header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
+        .nav-btn { 
+            background: none; border: none; 
+            font-size: 0.8rem; 
+            display: flex; flex-direction: column; align-items: center; 
+            color: #999; width: 33%; 
+        }
+        .nav-btn.active { color: var(--primary); font-weight: bold; }
+        .nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
 
-        /* Contenedores de Pantalla */
-        .screen { display: none; padding: 0 15px; animation: slideIn 0.3s ease-out; }
+        /* PANTALLAS */
+        .screen { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active-screen { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Tarjetas (Cards) */
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.02);
+        /* TARJETAS Y BOTONES */
+        .card { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 6px rgba(106, 27, 154, 0.05); 
+            margin-bottom: 15px; 
         }
-        .card h2 { margin-top: 0; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; }
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid #f3e5f5; padding-bottom: 10px;}
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; color: white; margin-top: 10px; cursor: pointer; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--accent); color: #004d25; }
+        .btn-danger { background: var(--danger); }
 
-        /* Botones Generales */
-        .btn {
-            width: 100%; padding: 14px; border: none; border-radius: 12px;
-            font-weight: 700; font-size: 1rem; color: white; cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            margin-top: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        /* GRID DE SABORES (BOTONES GRANDES) */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .flavor-card { 
+            background: white; 
+            padding: 15px 10px; 
+            border-radius: 12px; 
+            text-align: center; 
+            border: 1px solid #eee; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative; 
         }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
-        .btn-success { background: linear-gradient(135deg, #00C853, #00E676); color: #003300; }
-        .btn-danger { background: linear-gradient(135deg, #D32F2F, #FF5252); }
-
-        /* FILTROS (Botones superiores) */
-        .filter-group { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-btn {
-            flex: 1; padding: 10px; border: none; border-radius: 25px;
-            background: white; color: var(--text); font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); whitespace: nowrap;
+        .flavor-card:active { background-color: #E1BEE7; border-color: var(--primary); transform: scale(0.98); }
+        .stock-badge { 
+            font-size: 0.85rem; 
+            background: #f3e5f5; color: var(--primary); 
+            padding: 2px 8px; border-radius: 8px; 
+            display: inline-block; margin-top: 5px; font-weight: bold;
         }
-        .filter-btn.active { background: var(--primary); color: white; }
-
-        /* GRID DE SABORES (Botones grandes) */
-        .flavor-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columnas */
-            gap: 12px;
+        
+        /* BARRA FLOTANTE DE CARRITO */
+        .cart-bar { 
+            position: fixed; bottom: 70px; left: 15px; right: 15px; 
+            background: var(--primary); color: white; 
+            padding: 15px; border-radius: 50px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            display: none; 
+            box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4); 
+            z-index: 900; 
+            animation: slideUp 0.3s;
         }
-        .flavor-btn {
-            background: white;
-            border: 2px solid transparent;
-            border-radius: 16px;
-            padding: 15px 10px;
-            text-align: center;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.06);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.2s;
-        }
-        .flavor-btn:active { transform: scale(0.95); border-color: var(--primary); background: #F3E5F5; }
-        .flavor-name { display: block; font-weight: 800; font-size: 1.1rem; color: #333; margin-bottom: 5px; }
-        .flavor-stock { font-size: 0.9rem; color: #666; background: #eee; padding: 2px 8px; border-radius: 10px; }
-        .low-stock { color: var(--danger); background: #ffebee; }
-
-        /* CONTROL DE CANTIDAD Y PRECIO */
-        .control-row { display: flex; align-items: center; justify-content: space-between; background: #f5f5f5; padding: 8px; border-radius: 12px; margin-bottom: 15px; }
-        .qty-btn-circle { width: 40px; height: 40px; border-radius: 50%; border: none; background: white; font-weight: bold; font-size: 1.2rem; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .qty-input { width: 60px; text-align: center; font-size: 1.3rem; font-weight: bold; border: none; background: transparent; }
-
-        /* BARRA FLOTANTE (Carrito) */
-        .floating-cart {
-            position: fixed; bottom: 85px; left: 15px; right: 15px;
-            background: var(--text); color: white;
-            padding: 15px 20px; border-radius: 50px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 100;
-            display: none; /* Oculto por defecto */
-            animation: bounceIn 0.3s;
-        }
-        @keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-        /* NAVEGACIÓN INFERIOR (Estilo App) */
-        nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: white;
-            display: flex; justify-content: space-around;
-            padding: 12px 0;
-            border-top-left-radius: 20px; border-top-right-radius: 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-            z-index: 1000;
-        }
-        .nav-item {
-            border: none; background: none;
-            display: flex; flex-direction: column; align-items: center;
-            color: #999; font-size: 0.75rem; font-weight: 600;
-        }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: #999; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item.active svg { fill: var(--primary); }
-
-        /* LISTAS (Inventario/Historial) */
-        .list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #eee;
-        }
-        .list-item:last-child { border-bottom: none; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; }
-        .badge-ok { background: #E8F5E9; color: #2E7D32; }
-        .badge-low { background: #FFEBEE; color: #C62828; }
-
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* CONTROLES CANTIDAD */
+        .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
+        .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        /* TABLAS */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #f3e5f5; }
+        th { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>La Jalisciense 🍦</h1>
-    </header>
-
     <div id="screen-pos" class="screen active-screen">
-        
         <div class="card">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <strong>Precio:</strong>
-                <select id="price-select" style="border:none; background:#f0f0f0; padding:5px; border-radius:5px; font-weight:bold;">
-                    <option value="20" selected>$20 (Normal)</option>
+            <h1 style="text-align:center; color:var(--primary); margin: 5px 0 15px 0;">La Jalisciense 🍦</h1>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn btn-primary" onclick="setFilter('all')" style="margin:0; font-size:0.9rem; opacity:0.8;">Todos</button>
+                <button class="btn btn-success" onclick="setFilter('fruta')" style="margin:0; font-size:0.9rem">Fruta 🍓</button>
+                <button class="btn btn-primary" onclick="setFilter('crema')" style="margin:0; background:#AB47BC; font-size:0.9rem">Crema 🥛</button>
+            </div>
+            
+            <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:15px;">
+                <label style="font-size:0.9rem; color:#666; font-weight:bold;">Precio por Litro:</label>
+                <select id="price-select" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ddd; border-radius:8px; font-weight:bold; color:var(--primary);">
+                    <option value="20" selected>$20 (Estándar)</option>
                     <option value="16">$16 (Mayoreo)</option>
                     <option value="15">$15 (Especial)</option>
                 </select>
             </div>
-            
-            <div class="control-row">
-                <button class="qty-btn-circle" onclick="adjustQty(-1)">-</button>
-                <input type="number" id="qty-input" class="qty-input" value="1" readonly>
-                <button class="qty-btn-circle" onclick="adjustQty(1)">+</button>
-            </div>
 
-            <div class="filter-group">
-                <button class="filter-btn active" onclick="filterFlavors('all', this)">Todos</button>
-                <button class="filter-btn" onclick="filterFlavors('crema', this)">Crema 🥛</button>
-                <button class="filter-btn" onclick="filterFlavors('fruta', this)">Fruta 🍓</button>
-            </div>
-
-            <div id="flavor-grid" class="flavor-grid">
-                </div>
+            <div class="grid" id="flavors-grid"></div>
         </div>
+    </div>
+
+    <div id="cart-bar" class="cart-bar" onclick="showCheckout()">
+        <span id="cart-count" style="background:white; color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:bold;">0 L</span>
+        <strong id="cart-total" style="font-size:1.1rem;">$0</strong>
+        <span style="font-weight:bold;">Ver Carrito 🛒</span>
     </div>
 
     <div id="screen-prod" class="screen">
         <div class="card">
             <h2>🏭 Registrar Producción</h2>
-            <p style="color:#666; margin-bottom:20px;">Selecciona el sabor y la cantidad para agregar al inventario.</p>
-
-            <label style="font-weight:bold;">Sabor:</label>
-            <select id="prod-flavor" style="width:100%; padding:15px; margin:10px 0 20px 0; border:1px solid #ddd; border-radius:12px; font-size:1rem; background:white;"></select>
-
-            <label style="font-weight:bold;">Cantidad (Litros):</label>
-            <div class="control-row" style="margin-top:10px;">
-                <button class="qty-btn-circle" onclick="adjustProdQty(-5)">-5</button>
-                <input type="number" id="prod-qty" class="qty-input" value="20">
-                <button class="qty-btn-circle" onclick="adjustProdQty(5)">+5</button>
+            <p style="font-size:0.9rem; color:#666;">Ingresa los litros fabricados para sumar al inventario.</p>
+            
+            <label style="font-weight:bold; color:var(--primary);">Sabor:</label>
+            <select id="prod-flavor" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:10px; background:white;"></select>
+            
+            <label style="font-weight:bold; color:var(--primary);">Cantidad (Litros):</label>
+            <div class="qty-selector">
+                <button class="qty-btn" onclick="adjustProd(-5)">-5</button>
+                <input type="number" id="prod-qty" value="20" style="border:none; background:transparent; text-align:center; font-size:1.5rem; width:60px; font-weight:bold;">
+                <button class="qty-btn" onclick="adjustProd(5)">+5</button>
             </div>
 
-            <button class="btn btn-primary" onclick="addProduction()">Guardar Producción</button>
+            <button class="btn btn-primary" onclick="saveProduction()">Guardar Producción</button>
         </div>
     </div>
 
     <div id="screen-admin" class="screen">
-        
-        <div class="card" style="background: var(--primary); color: white;">
-            <h2 style="color:white; border-color: rgba(255,255,255,0.2);">Caja Actual 💰</h2>
-            <div style="text-align: center; margin: 20px 0;">
-                <span style="font-size: 3rem; font-weight: bold;" id="stat-cash">$0</span>
-                <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">
-                    Vendidos: <strong id="stat-sold">0L</strong> | Prod: <strong id="stat-prod">0L</strong>
-                </div>
+        <div class="card" style="text-align:center; background: linear-gradient(135deg, var(--primary), #8E24AA); color: white;">
+            <h2 style="color:white; border-bottom-color: rgba(255,255,255,0.2);">Caja Actual</h2>
+            <h1 id="stat-cash" style="font-size:3rem; margin:10px 0;">$0</h1>
+            <div style="display:flex; justify-content:space-around; margin-bottom:15px; font-size:0.9rem; opacity:0.9;">
+                <span>Vendidos: <b id="stat-sold">0L</b></span>
+                <span>Fabricados: <b id="stat-prod">0L</b></span>
             </div>
-            <button class="btn" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeRegister()">🔒 Cierre de Caja</button>
+            <button class="btn" style="background:rgba(255,255,255,0.2); color:white;" onclick="closeDay()">🔒 Corte de Caja</button>
         </div>
 
         <div class="card">
-            <h2>📦 Inventario Actual</h2>
-            <div id="inventory-list" style="max-height: 250px; overflow-y: auto;">
-                </div>
+            <h2>📦 Inventario</h2>
+            <div style="max-height:250px; overflow-y:auto;">
+                <table id="inv-table"><tbody></tbody></table>
+            </div>
         </div>
 
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>📜 Historial</h2>
-                <button onclick="downloadCSV()" style="border:none; background:none; color:var(--primary); font-weight:bold;">⬇ Excel</button>
+            <h2>📝 Historial</h2>
+            <button onclick="downloadCSV()" style="background:none; border:none; color:var(--primary); text-decoration:underline; margin-bottom:10px; font-weight:bold;">Descargar Excel ⬇</button>
+            <div style="max-height:250px; overflow-y:auto;">
+                <table id="hist-table"><tbody></tbody></table>
             </div>
-            <div id="history-list" style="max-height: 250px; overflow-y: auto;">
-                </div>
         </div>
     </div>
 
-    <div id="floating-cart" class="floating-cart" onclick="showCheckoutModal()">
-        <div style="display:flex; align-items:center;">
-            <span style="background:white; color:black; padding:2px 8px; border-radius:10px; font-weight:bold; margin-right:10px;" id="cart-count">0</span>
-            <span style="font-weight:bold;">Ver Carrito</span>
-        </div>
-        <span style="font-size:1.2rem; font-weight:bold;" id="cart-total">$0</span>
-    </div>
-
-    <div id="checkout-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center; animation:fadeIn 0.2s;">
-        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-            <h2 style="color:var(--text); margin-top:0;">🛒 Confirmar Venta</h2>
-            <div id="checkout-items" style="max-height:200px; overflow-y:auto; margin-bottom:20px;"></div>
-            
-            <div style="display:flex; justify-content:space-between; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:2px solid #eee; padding-top:10px;">
-                <span>Total:</span>
-                <span id="modal-total">$0</span>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                <button class="btn btn-danger" style="margin:0;" onclick="toggleModal('checkout-modal', false)">Cancelar</button>
-                <button class="btn btn-success" style="margin:0;" onclick="finalizeSale()">✅ COBRAR</button>
+    <div id="checkout-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0; color:var(--primary);">🛒 Confirmar Venta</h3>
+            <ul id="checkout-list" style="padding-left:20px; margin-bottom:20px; color:#555;"></ul>
+            <div style="text-align:right; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:1px solid #eee; padding-top:10px;" id="checkout-total">Total: $0</div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('checkout-modal').style.display='none'">Cancelar</button>
+                <button class="btn btn-success" style="margin:0;" onclick="finishSale()">Cobrar</button>
             </div>
         </div>
     </div>
 
     <nav>
-        <button class="nav-item active" onclick="go('pos', this)">
-            <svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
-            Venta
+        <button class="nav-btn active" onclick="go('pos', this)">
+            <span class="nav-icon">🏪</span>Venta
         </button>
-        <button class="nav-item" onclick="go('prod', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10z"/></
+        <button class="nav-btn" onclick="go('prod', this)">
+            <span class="nav-icon">🏭</span>Prod.
+        </button>
+        <button class="nav-btn" onclick="go('admin', this)">
+            <span class="nav-icon">📊</span>Admin
+        </button>
+    </nav>
+
+    <script>
+        // --- BASE DE DATOS LOCAL CON SABORES REALES ---
+        const DB_KEY = 'jalisciense_final_v1';
+        
+        // Lista completa de sabores
+        const realFlavors = [
+            // FRUTAS
+            {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
+            {n:'Lima', t:'fruta', s:20}, {n:'Fresa-Hierbabuena', t:'fruta', s:20}, {n:'Fresa', t:'fruta', s:20},
+            {n:'Guayaba-Hierbabuena', t:'fruta', s:20}, {n:'Guayaba-Fresa', t:'fruta', s:20}, {n:'Piña-Alfalfa', t:'fruta', s:20},
+            {n:'Guayaba', t:'fruta', s:20}, {n:'Lima-Albahaca', t:'fruta', s:20}, {n:'Melón', t:'fruta', s:20},
+            {n:'Hierbabuena-Limón', t:'fruta', s:20}, {n:'Mango', t:'fruta', s:20}, {n:'Limón-Alfalfa', t:'fruta', s:20},
+            {n:'Piña-Naranja', t:'fruta', s:20}, {n:'Limón-Hierbabuena', t:'fruta', s:20}, {n:'Piña-Hierbabuena', t:'fruta', s:20},
+            {n:'Limón-Chia', t:'fruta', s:20}, {n:'Limón Pepino', t:'fruta', s:20}, {n:'Piña Naranja H.', t:'fruta', s:20},
+            {n:'Melón Cítrico', t:'fruta', s:20}, {n:'Lima-Stevia', t:'fruta', s:20},
+            
+            // CREMAS
+            {n:'Horchata Fresa', t:'crema', s:15}, {n:'Horchata Arroz', t:'crema', s:15}, {n:'Vainilla', t:'crema', s:15},
+            {n:'Mazapán', t:'crema', s:15}, {n:'Chai', t:'crema', s:15}, {n:'Taro', t:'crema', s:15},
+            {n:'Coco c/ Nuez', t:'crema', s:15}, {n:'Cebada', t:'crema', s:15}, {n:'Kalhua', t:'crema', s:15},
+            {n:'Crema Irlandesa', t:'crema', s:15}
+        ];
+
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            cash: 0, sold: 0, produced: 0,
+            history: [],
+            inventory: realFlavors
+        };
+
+        // Si es la primera vez o faltan sabores, actualizamos la DB con los nuevos
+        if(db.inventory.length < 10) {
+            db.inventory = realFlavors;
+        }
+
+        let cart = [];
+
+        function save() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            updateUI();
+        }
+
+        // --- NAVEGACIÓN ---
+        function go(screenId, btn) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            document.getElementById('screen-'+screenId).classList.add('active-screen');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            updateUI();
+        }
+
+        // --- POS ---
+        function setFilter(type) {
+            const grid = document.getElementById('flavors-grid');
+            grid.innerHTML = '';
+            
+            // Ordenar alfabéticamente
+            const sortedInv = db.inventory.sort((a,b) => a.n.localeCompare(b.n));
+
+            sortedInv.forEach(item => {
+                if(type !== 'all' && item.t !== type) return;
+                
+                const card = document.createElement('div');
+                card.className = 'flavor-card';
+                card.onclick = () => addToCart(item);
+                
+                // Color diferente para cremas visualmente
+                const colorStyle = item.t === 'crema' ? 'color:#AB47BC' : 'color:#2c2c2c';
+                
+                card.innerHTML = `
+                    <strong style="${colorStyle}">${item.n}</strong><br>
+                    <span class="stock-badge">${item.s}L</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addToCart(item) {
+            if(item.s <= 0) return alert("Sin stock");
+            const price = parseFloat(document.getElementById('price-select').value);
+            
+            const existing = cart.find(c => c.name === item.n && c.price === price);
+            if(existing) {
+                if(existing.qty >= item.s) return alert("No hay más stock");
+                existing.qty++;
+            } else {
+                cart.push({name: item.n, price: price, qty: 1, type: item.t});
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const bar = document.getElementById('cart-bar');
+            if(cart.length > 0) {
+                bar.style.display = 'flex';
+                const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                const liters = cart.reduce((acc, item) => acc + item.qty, 0);
+                document.getElementById('cart-total').innerText = `$${total}`;
+                document.getElementById('cart-count').innerText = `${liters} L`;
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        function showCheckout() {
+            const list = document.getElementById('checkout-list');
+            list.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                list.innerHTML += `<li>${item.qty}L ${item.name} ($${item.price}) = <b>$${item.price*item.qty}</b></li>`;
+            });
+            document.getElementById('checkout-total').innerText = `Total: $${total}`;
+            document.getElementById('checkout-modal').style.display = 'flex';
+        }
+
+        function finishSale() {
+            let totalCash = 0;
+            let totalLiters = 0;
+
+            cart.forEach(c => {
+                const invItem = db.inventory.find(i => i.n === c.name);
+                if(invItem) invItem.s -= c.qty;
+                totalCash += c.price * c.qty;
+                totalLiters += c.qty;
+            });
+
+            db.cash += totalCash;
+            db.sold += totalLiters;
+            db.history.unshift({
+                d: new Date().toLocaleTimeString(),
+                a: 'VENTA',
+                det: `${totalLiters}L Varios`,
+                m: `+$${totalCash}`
+            });
+
+            cart = [];
+            document.getElementById('checkout-modal').style.display = 'none';
+            save();
+            alert("✅ Venta registrada");
+            setFilter('all'); 
+        }
+
+        // --- PRODUCCIÓN ---
+        function adjustProd(amount) {
+            const input = document.getElementById('prod-qty');
+            let val = parseInt(input.value) + amount;
+            if(val < 1) val = 1;
+            input.value = val;
+        }
+
+        function saveProduction() {
+            const name = document.getElementById('prod-flavor').value;
+            const qty = parseInt(document.getElementById('prod-qty').value);
+            
+            const item = db.inventory.find(i => i.n === name);
+            if(item) {
+                item.s += qty;
+                db.produced += qty;
+                db.history.unshift({
+                    d: new Date().toLocaleTimeString(),
+                    a: 'PROD',
+                    det: `${qty}L ${name}`,
+                    m: '-'
+                });
+                save();
+                alert(`🏭 +${qty}L de ${name} agregados.`);
+            }
+        }
+
+        // --- ADMIN ---
+        function updateUI() {
+            // Stats
+            document.getElementById('stat-cash').innerText = `$${db.cash}`;
+            document.getElementById('stat-sold').innerText = `${db.sold}L`;
+            document.getElementById('stat-prod').innerText = `${db.produced}L`;
+
+            // Tabla Inventario
+            const tbodyInv = document.querySelector('#inv-table tbody');
+            tbodyInv.innerHTML = '';
+            db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(i => {
+                let rowColor = i.s < 5 ? 'color:red; font-weight:bold;' : '';
+                tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}L</td></tr>`;
+            });
+
+            // Tabla Historial
+            document.querySelector('#hist-table tbody').innerHTML = db.history.map(h => 
+                `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td style="font-weight:bold;">${h.m}</td></tr>`
+            ).join('');
+
+            // Select de Producción
+            const prodSel = document.getElementById('prod-flavor');
+            prodSel.innerHTML = db.inventory.map(i => `<option value="${i.n}">${i.n}</option>`).join('');
+            
+            updateCartUI();
+        }
+
+        function closeDay() {
+            if(!confirm("¿Cerrar caja? Se reiniciará el dinero.")) return;
+            db.history.unshift({d: new Date().toLocaleTimeString(), a:'CIERRE', det:'--- CORTE ---', m:'$0'});
+            db.cash = 0; db.sold = 0; db.produced = 0;
+            save();
+        }
+
+        function downloadCSV() {
+            let csv = "Hora,Accion,Detalle,Monto\n" + db.history.map(h => `${h.d},${h.a},"${h.det}",${h.m}`).join('\n');
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `corte_${new Date().toLocaleDateString()}.csv`;
+            a.click();
+        }
+
+        // Inicio
+        setFilter('all');
+        updateUI();
+    </script>
+</body>
+</html>
