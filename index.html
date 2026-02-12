@@ -9,7 +9,7 @@
         :root {
             --primary: #6A1B9A; /* Morado Intenso */
             --primary-light: #AB47BC;
-            --accent: #00E676;  /* Verde Venta (Solo botón cobrar) */
+            --accent: #00E676;  /* Verde Venta */
             --bg: #F3E5F5;      /* Fondo Lavanda */
             --text: #2c2c2c;    /* Texto oscuro */
             --card-bg: #FFFFFF; /* Blanco puro */
@@ -64,14 +64,14 @@
         .btn-success { background: var(--accent); color: #004d25; }
         .btn-danger { background: var(--danger); }
 
-        /* BOTONES DE FILTRO (NUEVO DISEÑO) */
+        /* BOTONES DE FILTRO */
         .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
         .filter-btn {
             flex: 1;
             padding: 12px 5px;
             border: none;
             border-radius: 12px;
-            background-color: #E1BEE7; /* Lila suave apagado */
+            background-color: #E1BEE7; 
             color: #4A148C;
             font-weight: bold;
             font-size: 0.9rem;
@@ -79,7 +79,7 @@
             transition: all 0.2s;
         }
         .filter-btn.active {
-            background-color: var(--primary); /* Morado Intenso Seleccionado */
+            background-color: var(--primary); 
             color: white;
             box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3);
             transform: scale(1.05);
@@ -137,6 +137,10 @@
             margin-left: 10px;
             display: flex; align-items: center; justify-content: center;
         }
+
+        /* CONTENEDOR PRECIO (Para ocultarlo) */
+        #price-container { transition: opacity 0.3s; }
+        .price-hidden { display: none; }
     </style>
 </head>
 <body>
@@ -151,15 +155,17 @@
                 <button class="filter-btn" onclick="setFilter('paleta', this)">Paletas 🍨</button>
             </div>
             
-            <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:15px;">
-                <label style="font-size:0.9rem; color:#666; font-weight:bold;">Precio:</label>
+            <div id="price-container" style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:15px;">
+                <label style="font-size:0.9rem; color:#666; font-weight:bold;">Precio por Litro:</label>
                 <select id="price-select" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ddd; border-radius:8px; font-weight:bold; color:var(--primary);">
                     <option value="20" selected>$20 (Estándar)</option>
                     <option value="16">$16 (Mayoreo)</option>
                     <option value="15">$15 (Especial)</option>
-                    <option value="25">$25 (Especial Paleta/Extra)</option>
-                    <option value="30">$30 (Especial Paleta/Extra)</option>
                 </select>
+            </div>
+            
+            <div id="fixed-price-msg" style="display:none; background:#E1BEE7; color:#4A148C; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; font-weight:bold;">
+                Precios Fijos según producto
             </div>
 
             <div class="grid" id="flavors-grid"></div>
@@ -222,8 +228,7 @@
         <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
             <h3 style="margin-top:0; color:var(--primary);">🛒 Confirmar Venta</h3>
             
-            <div id="checkout-list" style="max-height: 250px; overflow-y: auto; margin-bottom:20px;">
-                </div>
+            <div id="checkout-list" style="max-height: 250px; overflow-y: auto; margin-bottom:20px;"></div>
 
             <div style="text-align:right; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:1px solid #eee; padding-top:10px;" id="checkout-total">Total: $0</div>
             
@@ -248,10 +253,10 @@
 
     <script>
         // --- BASE DE DATOS LOCAL ---
-        // Cambiamos a v3 para cargar los productos nuevos automáticamente
-        const DB_KEY = 'jalisciense_final_v3';
+        // V4 para actualizar precios fijos
+        const DB_KEY = 'jalisciense_final_v4';
         
-        // Lista completa de sabores y productos
+        // p: precio fijo (opcional)
         const realFlavors = [
             // FRUTAS
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -269,13 +274,13 @@
             {n:'Coco c/ Nuez', t:'crema', s:15}, {n:'Cebada', t:'crema', s:15}, {n:'Kalhua', t:'crema', s:15},
             {n:'Crema Irlandesa', t:'crema', s:15},
 
-            // PALETAS Y OTROS (Nuevos)
-            {n:'Paleta-Leche', t:'paleta', s:20},
-            {n:'Paleta-Agua', t:'paleta', s:20},
-            {n:'Fresas Con Crema', t:'paleta', s:20},
-            {n:'Sandwich', t:'paleta', s:20},
-            {n:'Campana', t:'paleta', s:20},
-            {n:'Frapuchino', t:'paleta', s:20}
+            // PALETAS Y OTROS (Precios Fijos)
+            {n:'Paleta-Leche', t:'paleta', s:20, p:30},
+            {n:'Paleta-Agua', t:'paleta', s:20, p:25},
+            {n:'Fresas Con Crema', t:'paleta', s:20, p:25},
+            {n:'Sandwich', t:'paleta', s:20, p:20},
+            {n:'Campana', t:'paleta', s:20, p:20},
+            {n:'Frapuchino', t:'paleta', s:20, p:10}
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
@@ -284,7 +289,6 @@
             inventory: realFlavors
         };
 
-        // Forzar actualización si faltan productos
         if(db.inventory.length < realFlavors.length) { db.inventory = realFlavors; }
 
         let cart = [];
@@ -294,7 +298,6 @@
             updateUI();
         }
 
-        // --- NAVEGACIÓN ---
         function go(screenId, btn) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('screen-'+screenId).classList.add('active-screen');
@@ -303,12 +306,23 @@
             updateUI();
         }
 
-        // --- POS ---
+        // --- FILTROS Y LÓGICA DE PRECIOS ---
         function setFilter(type, btn) {
             const grid = document.getElementById('flavors-grid');
+            const priceContainer = document.getElementById('price-container');
+            const fixedMsg = document.getElementById('fixed-price-msg');
+            
             grid.innerHTML = '';
             
-            // Ordenar alfabéticamente
+            // Lógica de Mostrar/Ocultar precios
+            if(type === 'paleta') {
+                priceContainer.style.display = 'none'; // Ocultar selector
+                fixedMsg.style.display = 'block'; // Mostrar mensaje "Precios Fijos"
+            } else {
+                priceContainer.style.display = 'block'; // Mostrar selector
+                fixedMsg.style.display = 'none';
+            }
+
             const sortedInv = db.inventory.sort((a,b) => a.n.localeCompare(b.n));
 
             sortedInv.forEach(item => {
@@ -318,19 +332,25 @@
                 card.className = 'flavor-card';
                 card.onclick = () => addToCart(item);
                 
-                // Estilo diferente según tipo
                 let colorStyle = 'color:#2c2c2c';
+                let priceDisplay = '';
+                
                 if(item.t === 'crema') colorStyle = 'color:#AB47BC';
-                if(item.t === 'paleta') colorStyle = 'color:#6A1B9A';
+                
+                // Si es paleta, mostramos el precio en la tarjeta
+                if(item.t === 'paleta') {
+                    colorStyle = 'color:#6A1B9A';
+                    priceDisplay = `<div style="color:#00E676; font-weight:bold; font-size:0.9rem;">$${item.p || 10}</div>`;
+                }
                 
                 card.innerHTML = `
                     <strong style="${colorStyle}">${item.n}</strong><br>
+                    ${priceDisplay}
                     <span class="stock-badge">${item.s}</span>
                 `;
                 grid.appendChild(card);
             });
 
-            // Actualizar botones (Visual Selected)
             if(btn) {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
@@ -339,7 +359,17 @@
 
         function addToCart(item) {
             if(item.s <= 0) return alert("Sin stock");
-            const price = parseFloat(document.getElementById('price-select').value);
+            
+            let price;
+            
+            // SI ES PALETA: Usamos su precio fijo (o 10 si no tiene)
+            if(item.t === 'paleta') {
+                price = item.p || 10;
+            } 
+            // SI ES AGUA: Usamos el selector
+            else {
+                price = parseFloat(document.getElementById('price-select').value);
+            }
             
             const existing = cart.find(c => c.name === item.n && c.price === price);
             if(existing) {
@@ -422,12 +452,11 @@
             document.getElementById('checkout-modal').style.display = 'none';
             save();
             alert("✅ Venta registrada");
-            // Recargar el filtro activo
             const activeBtn = document.querySelector('.filter-btn.active');
-            if(activeBtn) activeBtn.click();
+            if(activeBtn) setFilter(activeBtn.innerText.includes('Fruta') ? 'fruta' : (activeBtn.innerText.includes('Crema') ? 'crema' : 'paleta'), activeBtn);
         }
 
-        // --- PRODUCCIÓN ---
+        // --- ADMIN & PROD ---
         function adjustProd(amount) {
             const input = document.getElementById('prod-qty');
             let val = parseInt(input.value) + amount;
@@ -438,28 +467,21 @@
         function saveProduction() {
             const name = document.getElementById('prod-flavor').value;
             const qty = parseInt(document.getElementById('prod-qty').value);
-            
             const item = db.inventory.find(i => i.n === name);
             if(item) {
                 item.s += qty;
                 db.produced += qty;
-                db.history.unshift({
-                    d: new Date().toLocaleTimeString(),
-                    a: 'PROD',
-                    det: `${qty} ${name}`,
-                    m: '-'
-                });
+                db.history.unshift({d: new Date().toLocaleTimeString(), a:'PROD', det:`${qty} ${name}`, m:'-'});
                 save();
                 alert(`🏭 +${qty} de ${name} agregados.`);
             }
         }
 
-        // --- ADMIN ---
         function updateUI() {
             document.getElementById('stat-cash').innerText = `$${db.cash}`;
             document.getElementById('stat-sold').innerText = `${db.sold}`;
             document.getElementById('stat-prod').innerText = `${db.produced}`;
-
+            
             const tbodyInv = document.querySelector('#inv-table tbody');
             tbodyInv.innerHTML = '';
             db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(i => {
@@ -472,7 +494,6 @@
             ).join('');
 
             const prodSel = document.getElementById('prod-flavor');
-            // Guardar selección actual si existe
             const currentSel = prodSel.value;
             prodSel.innerHTML = db.inventory.sort((a,b) => a.n.localeCompare(b.n)).map(i => `<option value="${i.n}">${i.n}</option>`).join('');
             if(currentSel) prodSel.value = currentSel;
@@ -497,7 +518,6 @@
         }
 
         // INICIO
-        // Seleccionamos Fruta por defecto
         const firstBtn = document.querySelector('.filter-btn');
         if(firstBtn) setFilter('fruta', firstBtn);
         updateUI();
