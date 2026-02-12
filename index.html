@@ -54,26 +54,27 @@
         .btn-success { background: var(--accent); color: #004d25; }
         .btn-danger { background: var(--danger); }
         
-        /* BOTÓN PEQUEÑO (Para el inventario) */
+        /* BOTÓN PEQUEÑO (Inventario) */
         .btn-sm {
             background: #E1BEE7; color: var(--primary);
-            border: none; padding: 5px 12px; border-radius: 20px;
-            font-weight: bold; font-size: 0.8rem; cursor: pointer;
+            border: none; padding: 6px 14px; border-radius: 20px;
+            font-weight: bold; font-size: 0.85rem; cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* FILTROS */
-        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .filter-btn {
-            flex: 1; padding: 12px 5px; border: none; border-radius: 12px;
+            flex: 1; padding: 10px 2px; border: none; border-radius: 12px;
             background-color: #E1BEE7; color: #4A148C;
-            font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+            font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
         }
         .filter-btn.active {
             background-color: var(--primary); color: white;
             transform: scale(1.05); box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3);
         }
 
-        /* GRID SABORES */
+        /* GRID */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .flavor-card { 
             background: white; padding: 15px 10px; border-radius: 12px; 
@@ -94,21 +95,20 @@
         }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* CONTROLES CANTIDAD */
+        /* CONTROLES */
         .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
         .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); }
         
+        /* ESTADISTICAS GRID */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-item { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 10px; font-size: 0.85rem; }
+        .stat-val { display: block; font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
+
         /* TABLAS */
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th, td { text-align: left; padding: 10px; border-bottom: 1px solid #f3e5f5; }
-        
-        .cart-list-item {
-            display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;
-        }
-        .delete-btn {
-            background: var(--danger); color: white; border: none; border-radius: 8px;
-            width: 35px; height: 35px; font-weight: bold; font-size: 1.2rem; margin-left: 10px;
-        }
+        .cart-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .delete-btn { background: var(--danger); color: white; border: none; border-radius: 8px; width: 35px; height: 35px; font-weight: bold; font-size: 1.2rem; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -148,13 +148,14 @@
 
     <div id="screen-prod" class="screen">
         <div class="card">
-            <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
-                <button id="btn-prod-aguas" class="filter-btn active" onclick="setProdMode('aguas')">Aguas 💧</button>
-                <button id="btn-prod-paletas" class="filter-btn" onclick="setProdMode('paletas')">Paletas 🍭</button>
+            <h2 style="margin-bottom: 15px;">🏭 Producción</h2>
+            <div class="filter-container">
+                <button id="btn-prod-fruta" class="filter-btn active" onclick="setProdMode('fruta')">Fruta 🍓</button>
+                <button id="btn-prod-crema" class="filter-btn" onclick="setProdMode('crema')">Crema 🥛</button>
+                <button id="btn-prod-paleta" class="filter-btn" onclick="setProdMode('paleta')">Paletas 🍭</button>
             </div>
 
-            <h2 id="prod-title">Producción de Aguas</h2>
-            <p style="font-size:0.9rem; color:#666;">Registra lo fabricado para el inventario.</p>
+            <p style="font-size:0.9rem; color:#666; text-align:center;" id="prod-subtitle">Registrar producción de Fruta</p>
             
             <label style="font-weight:bold; color:var(--primary);">Producto:</label>
             <select id="prod-flavor" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:10px; background:white;"></select>
@@ -174,16 +175,32 @@
         <div class="card" style="text-align:center; background: linear-gradient(135deg, var(--primary), #8E24AA); color: white;">
             <h2 style="color:white; border-bottom-color: rgba(255,255,255,0.2);">Caja Actual</h2>
             <h1 id="stat-cash" style="font-size:3rem; margin:10px 0;">$0</h1>
-            <div style="display:flex; justify-content:space-around; margin-bottom:15px; font-size:0.9rem; opacity:0.9;">
-                <span>Ventas: <b id="stat-sold">0</b></span>
-                <span>Fab: <b id="stat-prod">0</b></span>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span>Ventas (Aguas)</span>
+                    <span class="stat-val" id="stat-sold-l">0 L</span>
+                </div>
+                <div class="stat-item">
+                    <span>Ventas (Paletas)</span>
+                    <span class="stat-val" id="stat-sold-p">0 Pz</span>
+                </div>
+                <div class="stat-item">
+                    <span>Fab. (Aguas)</span>
+                    <span class="stat-val" id="stat-prod-l">0 L</span>
+                </div>
+                <div class="stat-item">
+                    <span>Relleno (Palet)</span>
+                    <span class="stat-val" id="stat-prod-p">0 Pz</span>
+                </div>
             </div>
-            <button class="btn" style="background:rgba(255,255,255,0.2); color:white;" onclick="closeDay()">🔒 Corte de Caja</button>
+
+            <button class="btn" style="background:rgba(255,255,255,0.2); color:white; margin-top:15px;" onclick="closeDay()">🔒 Corte de Caja</button>
         </div>
 
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f3e5f5; padding-bottom:10px; margin-bottom:10px;">
-                <h2 style="margin:0; border:none;" id="inv-title">Inventario De Aguas</h2>
+                <h2 style="margin:0; border:none; font-size:1.1rem;" id="inv-title">Inventario de Fruta</h2>
                 <button class="btn-sm" onclick="toggleInvView()">🔄 Cambiar</button>
             </div>
             <div style="max-height:300px; overflow-y:auto;">
@@ -192,8 +209,8 @@
         </div>
 
         <div class="card">
-            <h2>📝 Historial</h2>
-            <button onclick="downloadCSV()" style="background:none; border:none; color:var(--primary); text-decoration:underline; margin-bottom:10px; font-weight:bold;">Descargar Excel ⬇</button>
+            <h2>📝 Historial Detallado</h2>
+            <button onclick="downloadCSV()" style="background:none; border:none; color:var(--primary); text-decoration:underline; margin-bottom:10px; font-weight:bold;">Descargar Excel Profesional ⬇</button>
             <div style="max-height:250px; overflow-y:auto;">
                 <table id="hist-table"><tbody></tbody></table>
             </div>
@@ -226,7 +243,7 @@
 
     <script>
         // --- DATA ---
-        const DB_KEY = 'jalisciense_final_v5';
+        const DB_KEY = 'jalisciense_final_v6';
         
         const realFlavors = [
             // FRUTAS
@@ -252,7 +269,9 @@
         ];
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            cash: 0, sold: 0, produced: 0,
+            cash: 0, 
+            soldL: 0, soldP: 0, // Litros vs Piezas
+            prodL: 0, prodP: 0, // Prod Litros vs Prod Paletas
             history: [],
             inventory: realFlavors
         };
@@ -260,8 +279,8 @@
         if(db.inventory.length < realFlavors.length) { db.inventory = realFlavors; }
 
         let cart = [];
-        let prodMode = 'aguas'; // 'aguas' | 'paletas'
-        let invView = 'aguas';  // 'aguas' | 'paletas'
+        let prodMode = 'fruta'; // fruta, crema, paleta
+        let invView = 'fruta';  // fruta, crema, paleta
 
         function save() {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
@@ -337,6 +356,7 @@
             if(cart.length > 0) {
                 bar.style.display = 'flex';
                 const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                // Contar items total (mix litros y piezas)
                 const count = cart.reduce((acc, item) => acc + item.qty, 0);
                 document.getElementById('cart-total').innerText = `$${total}`;
                 document.getElementById('cart-count').innerText = `${count}`;
@@ -352,9 +372,10 @@
             if(cart.length === 0) return;
             cart.forEach((item, index) => {
                 total += item.price * item.qty;
+                const unit = item.type === 'paleta' ? 'pz' : 'L';
                 list.innerHTML += `
                     <div class="cart-list-item">
-                        <div><strong>${item.name}</strong><br>${item.qty} x $${item.price} = <b>$${item.price*item.qty}</b></div>
+                        <div><strong>${item.name}</strong><br>${item.qty}${unit} x $${item.price} = <b>$${item.price*item.qty}</b></div>
                         <button class="delete-btn" onclick="removeFromCart(${index})">✕</button>
                     </div>`;
             });
@@ -370,31 +391,62 @@
         }
 
         function finishSale() {
-            let totalCash = 0; let totalItems = 0;
+            let totalCash = 0;
+            let tempSoldL = 0;
+            let tempSoldP = 0;
+            let detailArr = [];
+
             cart.forEach(c => {
                 const invItem = db.inventory.find(i => i.n === c.name);
                 if(invItem) invItem.s -= c.qty;
+                
                 totalCash += c.price * c.qty;
-                totalItems += c.qty;
+                
+                if(c.type === 'paleta') {
+                    tempSoldP += c.qty;
+                    detailArr.push(`${c.qty}pz ${c.name}`);
+                } else {
+                    tempSoldL += c.qty;
+                    detailArr.push(`${c.qty}L ${c.name}`);
+                }
             });
-            db.cash += totalCash; db.sold += totalItems;
-            db.history.unshift({d: new Date().toLocaleTimeString(), a:'VENTA', det:`${totalItems} items`, m:`+$${totalCash}`});
+
+            db.cash += totalCash;
+            db.soldL += tempSoldL;
+            db.soldP += tempSoldP;
+            
+            // Texto detallado para el Excel
+            const detailText = detailArr.join(" + ");
+
+            db.history.unshift({
+                d: new Date().toLocaleTimeString(),
+                a: 'VENTA',
+                det: detailText,
+                m: `+$${totalCash}`
+            });
+
             cart = [];
             document.getElementById('checkout-modal').style.display = 'none';
             save();
             alert("✅ Venta registrada");
-            // Refrescar filtro
             const activeBtn = document.querySelector('#screen-pos .filter-btn.active');
             if(activeBtn) activeBtn.click();
         }
 
-        // --- PRODUCCIÓN (SEPARADA) ---
+        // --- PRODUCCIÓN (3 Pestañas) ---
         function setProdMode(mode) {
             prodMode = mode;
-            document.getElementById('btn-prod-aguas').className = (mode === 'aguas') ? 'filter-btn active' : 'filter-btn';
-            document.getElementById('btn-prod-paletas').className = (mode === 'paletas') ? 'filter-btn active' : 'filter-btn';
+            // Reset buttons
+            ['fruta','crema','paleta'].forEach(m => {
+                document.getElementById(`btn-prod-${m}`).className = 'filter-btn' + (m===mode ? ' active' : '');
+            });
             
-            document.getElementById('prod-title').innerText = (mode === 'aguas') ? 'Producción de Aguas' : 'Producción de Paletas';
+            let subtitle = "Producción";
+            if(mode === 'fruta') subtitle = "Producción de Fruta";
+            if(mode === 'crema') subtitle = "Producción de Crema";
+            if(mode === 'paleta') subtitle = "Relleno de Paletas/Otros";
+            document.getElementById('prod-subtitle').innerText = subtitle;
+
             renderProdSelect();
         }
 
@@ -402,9 +454,7 @@
             const prodSel = document.getElementById('prod-flavor');
             prodSel.innerHTML = '';
             db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(item => {
-                if(prodMode === 'aguas' && (item.t === 'fruta' || item.t === 'crema')) {
-                    prodSel.innerHTML += `<option value="${item.n}">${item.n}</option>`;
-                } else if (prodMode === 'paletas' && item.t === 'paleta') {
+                if(item.t === prodMode) {
                     prodSel.innerHTML += `<option value="${item.n}">${item.n}</option>`;
                 }
             });
@@ -423,37 +473,45 @@
             const item = db.inventory.find(i => i.n === name);
             if(item) {
                 item.s += qty;
-                db.produced += qty;
-                db.history.unshift({d: new Date().toLocaleTimeString(), a:'PROD', det:`${qty} ${name}`, m:'-'});
+                
+                if(item.t === 'paleta') db.prodP += qty;
+                else db.prodL += qty;
+
+                const unit = item.t === 'paleta' ? 'pz' : 'L';
+                db.history.unshift({d: new Date().toLocaleTimeString(), a:'PROD', det:`${qty}${unit} ${name}`, m:'-'});
                 save();
-                alert(`🏭 +${qty} de ${name} agregados.`);
+                alert(`🏭 +${qty} ${name} agregados.`);
             }
         }
 
-        // --- ADMIN / INVENTARIO (SEPARADO) ---
+        // --- ADMIN / INVENTARIO (3 Vistas) ---
         function toggleInvView() {
-            invView = (invView === 'aguas') ? 'paletas' : 'aguas';
+            // Ciclo: Fruta -> Crema -> Paleta -> Fruta
+            if(invView === 'fruta') invView = 'crema';
+            else if(invView === 'crema') invView = 'paleta';
+            else invView = 'fruta';
             updateUI();
         }
 
         function updateUI() {
-            // Admin Stats
+            // Stats Separados
             document.getElementById('stat-cash').innerText = `$${db.cash}`;
-            document.getElementById('stat-sold').innerText = `${db.sold}`;
-            document.getElementById('stat-prod').innerText = `${db.produced}`;
+            document.getElementById('stat-sold-l').innerText = `${db.soldL || 0} L`;
+            document.getElementById('stat-sold-p').innerText = `${db.soldP || 0} Pz`;
+            document.getElementById('stat-prod-l').innerText = `${db.prodL || 0} L`;
+            document.getElementById('stat-prod-p').innerText = `${db.prodP || 0} Pz`;
 
-            // Inventario
-            document.getElementById('inv-title').innerText = (invView === 'aguas') ? 'Inventario De Aguas' : 'Inventario De Paletas';
+            // Inventario Dinámico
+            let title = "Inventario de Fruta";
+            if(invView === 'crema') title = "Inventario de Crema";
+            if(invView === 'paleta') title = "Inventario de Paletas";
+            document.getElementById('inv-title').innerText = title;
+
             const tbodyInv = document.querySelector('#inv-table tbody');
             tbodyInv.innerHTML = '';
             
             db.inventory.sort((a,b) => a.n.localeCompare(b.n)).forEach(i => {
-                // Filtro de vista
-                let show = false;
-                if(invView === 'aguas' && (i.t === 'fruta' || i.t === 'crema')) show = true;
-                if(invView === 'paletas' && i.t === 'paleta') show = true;
-
-                if(show) {
+                if(i.t === invView) {
                     let rowColor = i.s < 5 ? 'color:red; font-weight:bold;' : '';
                     tbodyInv.innerHTML += `<tr><td>${i.n}</td><td style="${rowColor}">${i.s}</td></tr>`;
                 }
@@ -464,7 +522,6 @@
                 `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td style="font-weight:bold;">${h.m}</td></tr>`
             ).join('');
 
-            // Refrescar producción
             renderProdSelect();
             updateCartUI();
         }
@@ -472,22 +529,31 @@
         function closeDay() {
             if(!confirm("¿Cerrar caja? Se reiniciará el dinero.")) return;
             db.history.unshift({d: new Date().toLocaleTimeString(), a:'CIERRE', det:'--- CORTE ---', m:'$0'});
-            db.cash = 0; db.sold = 0; db.produced = 0;
+            db.cash = 0; db.soldL = 0; db.soldP = 0; db.prodL = 0; db.prodP = 0;
             save();
         }
 
         function downloadCSV() {
-            let csv = "Hora,Accion,Detalle,Monto\n" + db.history.map(h => `${h.d},${h.a},"${h.det}",${h.m}`).join('\n');
-            const blob = new Blob([csv], {type: 'text/csv'});
+            // Agregar BOM para que Excel reconozca tildes (\uFEFF)
+            let csv = "\uFEFFHora,Accion,Descripcion,Monto\n";
+            db.history.forEach(h => {
+                // Comillas para evitar que las comas del detalle rompan el CSV
+                csv += `${h.d},${h.a},"${h.det}",${h.m}\n`;
+            });
+            
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `corte.csv`;
+            a.href = url; 
+            a.download = `Corte_LaJalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
             a.click();
         }
 
         // INICIO
         const firstBtn = document.querySelector('.filter-btn');
         if(firstBtn) setFilter('fruta', firstBtn);
+        // Inicializar DB si viene de version vieja
+        if(db.soldL === undefined) { db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; }
         updateUI();
     </script>
 </body>
