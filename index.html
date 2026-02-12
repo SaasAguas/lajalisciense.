@@ -422,28 +422,29 @@
             db.cash=0; db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; save();
         }
 
-        function downloadExcel() {
-            let table = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head><meta charset="utf-8">
-            <style>
-                table { border-collapse: collapse; width: 100%; font-family: Arial; }
-                th { background-color: #6A1B9A; color: white; padding: 12px; border: 1px solid #ddd; }
-                td { border: 1px solid #ddd; padding: 10px; vertical-align: middle; }
-                .m { font-weight: bold; }
-            </style>
-            </head>
-            <body><table><thead><tr><th>Hora</th><th>Acción</th><th>Descripción</th><th>Monto</th></tr></thead><tbody>`;
+                function downloadExcel() {
+            // 1. Definimos los encabezados
+            let csv = "\uFEFF"; // Este es el código para que reconozca tildes
+            csv += "Hora;Acción;Descripción Detallada;Monto\n";
+
+            // 2. Recorremos el historial
             db.history.forEach(h => {
-                table += `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td class="m">${h.m}</td></tr>`;
+                // Limpiamos comas o puntos y coma internos para no romper las columnas
+                let detalleLimpio = h.det.replace(/;/g, ",").replace(/\n/g, " ");
+                csv += `${h.d};${h.a};"${detalleLimpio}";${h.m}\n`;
             });
-            table += `</tbody></table></body></html>`;
-            const b = new Blob([table], { type: 'application/vnd.ms-excel' });
-            const u = window.URL.createObjectURL(b);
+
+            // 3. Creamos el archivo con formato CSV de alta compatibilidad
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href=u; a.download=`Corte_LaJalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.xls`;
+            a.href = url;
+            // Usamos .csv porque es el formato más seguro para Google Sheets en celular
+            a.download = `Corte_LaJalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
             a.click();
+            window.URL.revokeObjectURL(url);
         }
+
 
         setFilter('fruta', document.querySelector('.filter-btn'));
         updateUI();
