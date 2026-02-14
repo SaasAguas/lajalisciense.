@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Jalisciense Pro</title>
+    <title>La Jalisciense Pro v2</title>
 
     <link rel="icon" type="image/png" href="logo.png">
-    <link rel="shortcut icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
     <meta name="theme-color" content="#6A1B9A">
     <style>
         /* --- TEMA LAVANDA --- */
@@ -37,7 +35,11 @@
             background: none; border: none; font-size: 0.8rem; 
             display: flex; flex-direction: column; align-items: center; 
             color: #999; width: 33%; 
+            /* Para ocultar botones según el rol */
+            display: flex; 
         }
+        .nav-btn.hidden-role { display: none !important; } /* Clase para ocultar */
+
         .nav-btn.active { color: var(--primary); font-weight: bold; }
         .nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
 
@@ -46,7 +48,7 @@
         .active-screen { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* CARDS */
+        /* CARDS & GENERAL */
         .card { 
             background: var(--card-bg); padding: 15px; border-radius: 15px; 
             box-shadow: 0 4px 6px rgba(106, 27, 154, 0.05); margin-bottom: 15px; 
@@ -58,65 +60,75 @@
         .btn-primary { background: var(--primary); }
         .btn-success { background: var(--accent); color: #004d25; }
         .btn-danger { background: var(--danger); }
-        
-        .btn-sm {
-            background: #E1BEE7; color: var(--primary);
-            border: none; padding: 6px 14px; border-radius: 20px;
-            font-weight: bold; font-size: 0.85rem; cursor: pointer;
-        }
+        .btn-sm { background: #E1BEE7; color: var(--primary); border: none; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
 
         /* FILTROS */
         .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
-        .filter-btn {
-            flex: 1; padding: 10px 2px; border: none; border-radius: 12px;
-            background-color: #E1BEE7; color: #4A148C;
-            font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
-        }
-        .filter-btn.active {
-            background-color: var(--primary); color: white;
-            transform: scale(1.05); box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3);
-        }
+        .filter-btn { flex: 1; padding: 10px 2px; border: none; border-radius: 12px; background-color: #E1BEE7; color: #4A148C; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { background-color: var(--primary); color: white; transform: scale(1.05); box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3); }
 
         /* GRID */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .flavor-card { 
-            background: white; padding: 15px 10px; border-radius: 12px; 
-            text-align: center; border: 1px solid #eee; position: relative;
-        }
+        .flavor-card { background: white; padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid #eee; position: relative; }
         .flavor-card:active { background-color: #E1BEE7; border-color: var(--primary); transform: scale(0.98); }
-        .stock-badge { 
-            font-size: 0.85rem; background: #f3e5f5; color: var(--primary); 
-            padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 5px; font-weight: bold;
-        }
+        .stock-badge { font-size: 0.85rem; background: #f3e5f5; color: var(--primary); padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 5px; font-weight: bold; }
         
-        /* CARRITO */
-        .cart-bar { 
-            position: fixed; bottom: 75px; left: 15px; right: 15px; 
-            background: var(--primary); color: white; padding: 15px; 
-            border-radius: 50px; display: none; justify-content: space-between; align-items: center; 
-            box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4); z-index: 900; animation: slideUp 0.3s;
-        }
+        /* CARRO & VARIOS */
+        .cart-bar { position: fixed; bottom: 75px; left: 15px; right: 15px; background: var(--primary); color: white; padding: 15px; border-radius: 50px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4); z-index: 900; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
         .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
         .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); }
-        
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .stat-item { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 10px; font-size: 0.85rem; }
         .stat-val { display: block; font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
-
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th, td { text-align: left; padding: 10px; border-bottom: 1px solid #f3e5f5; }
         .cart-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .delete-btn { background: var(--danger); color: white; border: none; border-radius: 8px; width: 35px; height: 35px; font-weight: bold; font-size: 1.2rem; margin-left: 10px; }
+
+        /* --- NUEVO: LOGIN STYLES --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary); z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: white; padding: 30px; border-radius: 20px; width: 80%; max-width: 350px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .login-input {
+            width: 100%; padding: 12px; margin: 10px 0; 
+            border: 2px solid #E1BEE7; border-radius: 10px; box-sizing: border-box; font-size: 1rem;
+        }
+        .logout-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.2); color: white; padding: 5px 10px;
+            border-radius: 15px; border:none; font-size: 0.8rem; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div id="screen-pos" class="screen active-screen">
-        <div class="card">
-            <h1 style="text-align:center; color:var(--primary); margin: 5px 0 15px 0;">La Jalisciense 🍦</h1>
+    <div id="login-overlay">
+        <div class="login-box">
+            <h1 style="color:var(--primary); margin:0;">La Jalisciense</h1>
+            <p style="color:#666;">Inicia sesión</p>
             
+            <input type="text" id="login-user" class="login-input" placeholder="Usuario">
+            <input type="password" id="login-pass" class="login-input" placeholder="Contraseña">
+            
+            <button class="btn btn-primary" onclick="attemptLogin()">Entrar</button>
+            <p id="login-error" style="color:red; display:none; margin-top:10px;">Datos incorrectos</p>
+        </div>
+    </div>
+
+    <div style="background: var(--primary); color: white; padding: 10px 15px; position: sticky; top:0; z-index: 900; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:bold;">👤 <span id="user-display">Invitado</span></span>
+        <button class="logout-btn" style="position:static;" onclick="doLogout()">Salir</button>
+    </div>
+
+    <div id="screen-pos" class="screen">
+        <div class="card">
             <div class="filter-container">
                 <button class="filter-btn active" onclick="setFilter('fruta', this)">Fruta 🍓</button>
                 <button class="filter-btn" onclick="setFilter('crema', this)">Crema 🥛</button>
@@ -234,19 +246,82 @@
     </div>
 
     <nav>
-        <button class="nav-btn active" onclick="go('pos', this)">
+        <button id="nav-pos" class="nav-btn" onclick="go('pos', this)">
             <span class="nav-icon">🏪</span>Venta
         </button>
-        <button class="nav-btn" onclick="go('prod', this)">
+        <button id="nav-prod" class="nav-btn" onclick="go('prod', this)">
             <span class="nav-icon">🏭</span>Prod.
         </button>
-        <button class="nav-btn" onclick="go('admin', this)">
+        <button id="nav-admin" class="nav-btn" onclick="go('admin', this)">
             <span class="nav-icon">📊</span>Admin
         </button>
     </nav>
 
     <script>
-        // --- BASE DE DATOS (V8.1 - Frapuchino Solo en Venta) ---
+        // --- CONFIGURACIÓN DE USUARIOS (SIMULADO) ---
+        // Aquí defines quién puede entrar y qué rol tiene
+        const USERS = {
+            'admin':   { pass: 'admin123', role: 'admin' },   // Dueño: Ve todo
+            'ventas':  { pass: 'caja1',    role: 'ventas' },  // Empleado: Solo vende
+            'fabrica': { pass: 'prod1',    role: 'fabrica' }  // Fabricante: Solo produce
+        };
+
+        let CURRENT_USER = null;
+
+        // --- FUNCIONES DE LOGIN ---
+        function attemptLogin() {
+            const u = document.getElementById('login-user').value.toLowerCase();
+            const p = document.getElementById('login-pass').value;
+            const err = document.getElementById('login-error');
+
+            if (USERS[u] && USERS[u].pass === p) {
+                CURRENT_USER = USERS[u];
+                document.getElementById('user-display').innerText = u.toUpperCase();
+                document.getElementById('login-overlay').style.display = 'none';
+                applyRolePermissions(CURRENT_USER.role);
+                
+                // Limpiar inputs
+                document.getElementById('login-user').value = '';
+                document.getElementById('login-pass').value = '';
+                err.style.display = 'none';
+            } else {
+                err.style.display = 'block';
+            }
+        }
+
+        function doLogout() {
+            CURRENT_USER = null;
+            document.getElementById('login-overlay').style.display = 'flex';
+            // Al salir, ocultamos todas las pantallas por seguridad visual
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+        }
+
+        function applyRolePermissions(role) {
+            // Referencias a los botones de navegación
+            const bPos = document.getElementById('nav-pos');
+            const bProd = document.getElementById('nav-prod');
+            const bAdmin = document.getElementById('nav-admin');
+
+            // Resetear visibilidad (quitar clase hidden)
+            [bPos, bProd, bAdmin].forEach(b => b.classList.remove('hidden-role'));
+
+            if (role === 'ventas') {
+                // Ventas: Solo ve POS
+                bProd.classList.add('hidden-role');
+                bAdmin.classList.add('hidden-role');
+                go('pos', bPos);
+            } else if (role === 'fabrica') {
+                // Fábrica: Solo ve Producción
+                bPos.classList.add('hidden-role');
+                bAdmin.classList.add('hidden-role');
+                go('prod', bProd);
+            } else {
+                // Admin: Ve todo
+                go('admin', bAdmin); // Admin entra directo al panel de control
+            }
+        }
+
+        // --- BASE DE DATOS (V8.1) ---
         const DB_KEY = 'jalisciense_final_v8.1';
         
         const realFlavors = [
@@ -265,7 +340,6 @@
             {n:'Paleta-Leche', t:'paleta', s:20, p:30}, {n:'Paleta-Agua', t:'paleta', s:20, p:25},
             {n:'Fresas Con Crema', t:'paleta', s:20, p:25}, {n:'Sandwich', t:'paleta', s:20, p:20},
             {n:'Campana', t:'paleta', s:20, p:20},
-            // Frapuchino tiene 's: 999' para que nunca se acabe y no aparezca en inventario
             {n:'Frapuchino', t:'paleta', s:999, p:10, hidden: true}
         ];
 
@@ -305,22 +379,16 @@
                 card.className = 'flavor-card';
                 card.onclick = () => addToCart(item);
                 
-                // --- AQUI SE DEFINE EL COLOR DEL TEXTO (EN VENTAS) ---
-                let cs = 'color:#2c2c2c'; // Color default
+                let cs = 'color:#2c2c2c'; 
                 let pd = '';
-
-                if(item.t === 'crema') {
-                     cs = 'color:#AB47BC'; // Lila claro para crema
-                } else if (item.t === 'fruta') {
-                     cs = 'color:#BA68C8'; // NUEVO COLOR LILA PARA FRUTA
-                } else if(item.t==='paleta') {
-                     cs='color:#6A1B9A'; // Morado oscuro para paleta
+                if(item.t === 'crema') cs = 'color:#AB47BC';
+                else if (item.t === 'fruta') cs = 'color:#BA68C8';
+                else if(item.t==='paleta') {
+                     cs='color:#6A1B9A'; 
                      pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`;
                 }
                 
-                // Si es el frapuchino ocultamos el stock
                 let stockDisp = item.hidden ? "♾️" : item.s;
-                
                 card.innerHTML = `<strong style="${cs}">${item.n}</strong><br>${pd}<span class="stock-badge">${stockDisp}</span>`;
                 grid.appendChild(card);
             });
@@ -369,9 +437,7 @@
             let tc = 0, tl = 0, tp = 0, det = [];
             cart.forEach(c => {
                 const i = db.inventory.find(inv=>inv.n===c.name);
-                // Si no es un producto oculto (como frapuchino), descontamos stock
                 if(i && !i.hidden) i.s -= c.qty;
-                
                 tc += c.price*c.qty;
                 if(c.type==='paleta') { tp+=c.qty; det.push(`${c.qty}pz ${c.name}`); }
                 else { tl+=c.qty; det.push(`${c.qty}L ${c.name}`); }
@@ -397,7 +463,6 @@
             const s = document.getElementById('prod-flavor');
             s.innerHTML = '';
             db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
-                // Solo mostramos en producción lo que NO está oculto
                 if(i.t===prodMode && !i.hidden) s.innerHTML += `<option value="${i.n}">${i.n}</option>`;
             });
         }
@@ -436,7 +501,6 @@
             tb.innerHTML = '';
             
             db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
-                // Solo mostramos en inventario lo que NO está oculto
                 if(i.t===invView && !i.hidden) {
                     let rc = i.s<5?'color:red;font-weight:bold;':'';
                     tb.innerHTML += `<tr><td>${i.n}</td><td style="${rc}">${i.s}</td></tr>`;
@@ -480,7 +544,8 @@
         // INICIO
         const firstBtn = document.querySelector('.filter-btn');
         if(firstBtn) setFilter('fruta', firstBtn);
-        updateUI();
+        // NO llamamos a updateUI aquí directamente para no mostrar nada hasta el login
+        // updateUI(); 
     </script>
 </body>
 </html>
