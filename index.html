@@ -3,196 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Jalisciense Pro v3.0</title>
-    
+    <title>La Jalisciense Pro v3.1</title>
     <style>
         :root {
-            --primary: #6A1B9A; 
-            --accent: #00E676;
-            --bg: #F8F9FA;
-            --card: #FFFFFF;
-            --text-main: #2D3436;
-            --text-secondary: #636E72;
-            --shadow: 0 10px 20px rgba(106, 27, 154, 0.1);
+            --primary: #6A1B9A; --accent: #00E676; --bg: #F3E5F5;
+            --card: #FFFFFF; --text: #2D3436; --shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            margin: 0; background: var(--bg); color: var(--text-main);
-            padding-bottom: 80px;
+            font-family: system-ui, -apple-system, sans-serif; 
+            margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px;
         }
 
-        /* --- MODERN LOGIN --- */
+        /* --- NAVEGACIÓN Y PANTALLAS --- */
+        .screen { display: none; padding: 15px; animation: fadeIn 0.3s; }
+        .active-screen { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- LOGIN --- */
         #login-overlay {
             position: fixed; inset: 0; background: var(--primary);
             display: flex; align-items: center; justify-content: center; z-index: 9999;
         }
-        .login-card {
-            background: white; padding: 2rem; border-radius: 24px;
-            width: 85%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
+        .login-box { background: white; padding: 25px; border-radius: 20px; width: 80%; max-width: 320px; text-align: center; }
 
-        /* --- HEADER --- */
-        header {
-            background: white; padding: 1rem 1.5rem; display: flex;
-            justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+        /* --- CARDS --- */
+        .card { background: white; padding: 15px; border-radius: 15px; box-shadow: var(--shadow); margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .item-card { 
+            background: white; border: 1px solid #eee; padding: 12px; border-radius: 12px; 
+            text-align: center; cursor: pointer; transition: 0.2s;
         }
+        .item-card:active { background: #E1BEE7; transform: scale(0.95); }
 
-        /* --- PRODUCT GRID --- */
-        .container { padding: 1rem; }
-        .grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 12px; margin-top: 1rem;
+        /* --- HEADER & NAV --- */
+        nav { 
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd;
         }
-        .item-card {
-            background: var(--card); border-radius: 18px; padding: 1rem;
-            text-align: center; transition: all 0.2s; border: 1px solid transparent;
-            box-shadow: var(--shadow);
-        }
-        .item-card:active { transform: scale(0.95); border-color: var(--primary); }
-        .item-name { font-weight: 700; font-size: 0.9rem; display: block; margin-bottom: 5px; }
-        .item-stock { font-size: 0.75rem; color: var(--primary); font-weight: bold; background: #F3E5F5; padding: 2px 8px; border-radius: 10px; }
+        .nav-btn { background: none; border: none; color: #999; font-weight: bold; font-size: 0.8rem; }
+        .nav-btn.active { color: var(--primary); }
+        .hidden { display: none !important; }
 
-        /* --- BOTONES Y FILTROS --- */
-        .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 5px; scrollbar-width: none; }
-        .tab-btn {
-            padding: 10px 20px; border-radius: 12px; border: none;
-            background: white; color: var(--text-secondary); font-weight: 600;
-            white-space: nowrap; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-        }
-        .tab-btn.active { background: var(--primary); color: white; }
+        /* --- BOTONES --- */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--accent); color: #004d25; }
 
-        /* --- NAVEGACIÓN --- */
-        nav {
-            position: fixed; bottom: 0; width: 100%; background: white;
-            display: flex; justify-content: space-around; padding: 12px 0;
-            border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-        }
-        .nav-item { border: none; background: none; color: #B2BEC3; font-weight: 600; font-size: 0.75rem; }
-        .nav-item.active { color: var(--primary); }
-
-        /* --- CARRITO BARRA --- */
-        .cart-float {
-            position: fixed; bottom: 85px; left: 15px; right: 15px;
-            background: var(--text-main); color: white; padding: 1rem 1.5rem;
-            border-radius: 100px; display: flex; justify-content: space-between;
-            align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: none; /* Se activa con JS */
+        .cart-bar {
+            position: fixed; bottom: 75px; left: 15px; right: 15px;
+            background: var(--primary); color: white; padding: 15px;
+            border-radius: 50px; display: none; justify-content: space-between; align-items: center;
         }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="login-card">
-            <h2 style="margin-bottom: 0.5rem;">🍦 La Jalisciense</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Gestión de Inventario</p>
-            <input type="text" id="user" placeholder="Usuario" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
-            <input type="password" id="pass" placeholder="Contraseña" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; border:1px solid #ddd;">
-            <button onclick="login()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">Entrar</button>
+        <div class="login-box">
+            <h2>🍦 Bienvenida</h2>
+            <input type="text" id="user-in" placeholder="Usuario" style="width:90%; padding:10px; margin:5px;"><br>
+            <input type="password" id="pass-in" placeholder="Contraseña" style="width:90%; padding:10px; margin:5px;"><br>
+            <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
         </div>
     </div>
 
-    <header>
-        <span id="current-user-tag" style="font-weight:bold; color:var(--primary);">---</span>
-        <button onclick="location.reload()" style="border:none; background:none; font-size:0.8rem; color:var(--text-secondary);">Cerrar Sesión</button>
-    </header>
-
-    <div class="container">
-        <div class="tabs" id="category-tabs">
-            <button class="tab-btn active" onclick="filterBy('fruta')">Frutas 🍓</button>
-            <button class="tab-btn" onclick="filterBy('crema')">Crema 🥛</button>
-            <button class="tab-btn" onclick="filterBy('paleta')">Paletas 🍭</button>
-        </div>
-
-        <div class="grid" id="main-grid">
+    <div id="app-content">
+        <div id="scr-pos" class="screen active-screen">
+            <div class="card">
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button class="btn btn-primary" onclick="setFilter('fruta')">Fruta</button>
+                    <button class="btn btn-primary" onclick="setFilter('crema')">Crema</button>
+                    <button class="btn btn-primary" onclick="setFilter('paleta')">Paletas</button>
+                </div>
+                <div class="grid" id="pos-grid"></div>
             </div>
+        </div>
+
+        <div id="scr-admin" class="screen">
+            <div class="card" style="background:var(--primary); color:white; text-align:center;">
+                <h3>Caja Actual</h3>
+                <h1 id="cash-display">$0</h1>
+            </div>
+            <div class="card">
+                <h3>Inventario Actual</h3>
+                <div id="inv-list"></div>
+            </div>
+            <button class="btn btn-primary" onclick="exportData()">Descargar Reporte</button>
+        </div>
     </div>
 
-    <div class="cart-float" id="cart-float" onclick="openCart()">
+    <div id="cart-bar" class="cart-bar" onclick="finishSale()">
         <span>🛒 <span id="cart-count">0</span> productos</span>
-        <span id="cart-total" style="font-weight:bold;">$0.00</span>
+        <span id="cart-total">$0</span>
+        <span>COBRAR</span>
     </div>
 
-    <nav>
-        <button class="nav-item active">🏪 Venta</button>
-        <button class="nav-item">🏭 Producción</button>
-        <button class="nav-item">📊 Admin</button>
+    <nav id="main-nav">
+        <button id="n-pos" class="nav-btn active" onclick="go('pos')">VENTA</button>
+        <button id="n-admin" class="nav-btn" onclick="go('admin')">ADMIN</button>
     </nav>
 
     <script>
-        // --- BASE DE DATOS Y ESTADO ---
-        const state = {
-            products: [
-                { id: 1, name: 'Jamaica', type: 'fruta', stock: 20, price: 20 },
-                { id: 2, name: 'Maracuyá', type: 'fruta', stock: 15, price: 20 },
-                { id: 3, name: 'Horchata', type: 'crema', stock: 10, price: 15 },
-                { id: 4, name: 'Fresa Leche', type: 'paleta', stock: 50, price: 25 },
-            ],
-            cart: [],
-            currentFilter: 'fruta'
+        // 1. Datos iniciales
+        const DB_KEY = 'jalisciense_db_v3';
+        const initialFlavors = [
+            {n:'Jamaica', t:'fruta', s:20, p:20}, {n:'Maracuya', t:'fruta', s:20, p:20},
+            {n:'Horchata', t:'crema', s:20, p:15}, {n:'Mazapan', t:'crema', s:20, p:15},
+            {n:'Paleta Agua', t:'paleta', s:50, p:25}
+        ];
+
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            cash: 0, inventory: initialFlavors, sales: []
         };
 
-        // --- LÓGICA DE INTERFAZ ---
-        function login() {
-            const user = document.getElementById('user').value;
-            if(user) {
+        let cart = [];
+        let currentFilter = 'fruta';
+
+        // 2. Funciones de Navegación y Login
+        function handleLogin() {
+            const u = document.getElementById('user-in').value;
+            if(u === 'admin') {
                 document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('current-user-tag').innerText = 'Hola, ' + user;
-                renderProducts();
+                updateUI();
             }
         }
 
-        function renderProducts() {
-            const grid = document.getElementById('main-grid');
+        function go(scr) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            document.getElementById('scr-' + scr).classList.add('active-screen');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('n-' + scr).classList.add('active');
+        }
+
+        // 3. Lógica de Negocio
+        function setFilter(f) {
+            currentFilter = f;
+            updateUI();
+        }
+
+        function addToCart(index) {
+            const item = db.inventory[index];
+            if(item.s > 0) {
+                cart.push({...item, originalIndex: index});
+                updateUI();
+            } else {
+                alert("Sin inventario");
+            }
+        }
+
+        function finishSale() {
+            let total = 0;
+            cart.forEach(item => {
+                total += item.p;
+                db.inventory[item.originalIndex].s -= 1; // Resta 1 unidad/litro
+            });
+            db.cash += total;
+            db.sales.push({ date: new Date(), total: total, items: cart.length });
+            
+            cart = [];
+            save();
+            alert("Venta completada");
+            updateUI();
+        }
+
+        function save() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+
+        function updateUI() {
+            // Render Venta
+            const grid = document.getElementById('pos-grid');
             grid.innerHTML = '';
-            
-            const filtered = state.products.filter(p => p.type === state.currentFilter);
-            
-            filtered.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'item-card';
-                card.onclick = () => addToCart(p.id);
-                card.innerHTML = `
-                    <span class="item-name">${p.name}</span>
-                    <span class="item-stock">${p.stock} L disponibles</span>
-                    <div style="margin-top:10px; font-weight:bold; color:var(--primary);">$${p.price}</div>
-                `;
-                grid.appendChild(card);
+            db.inventory.forEach((item, index) => {
+                if(item.t === currentFilter) {
+                    grid.innerHTML += `
+                        <div class="item-card" onclick="addToCart(${index})">
+                            <strong>${item.n}</strong><br>
+                            <small>${item.s} disp.</small><br>
+                            <b>$${item.p}</b>
+                        </div>`;
+                }
             });
-        }
 
-        function filterBy(type) {
-            state.currentFilter = type;
-            // Actualizar botones
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText.toLowerCase().includes(type));
-            });
-            renderProducts();
-        }
-
-        function addToCart(id) {
-            const product = state.products.find(p => p.id === id);
-            state.cart.push(product);
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const bar = document.getElementById('cart-float');
-            const count = document.getElementById('cart-count');
-            const total = document.getElementById('cart-total');
-            
-            if(state.cart.length > 0) {
+            // Barra de carrito
+            const bar = document.getElementById('cart-bar');
+            if(cart.length > 0) {
                 bar.style.display = 'flex';
-                count.innerText = state.cart.length;
-                const sum = state.cart.reduce((acc, p) => acc + p.price, 0);
-                total.innerText = '$' + sum.toFixed(2);
+                document.getElementById('cart-count').innerText = cart.length;
+                document.getElementById('cart-total').innerText = '$' + cart.reduce((a,b)=>a+b.p, 0);
+            } else {
+                bar.style.display = 'none';
             }
+
+            // Admin
+            document.getElementById('cash-display').innerText = '$' + db.cash;
+            const invList = document.getElementById('inv-list');
+            invList.innerHTML = db.inventory.map(i => `<div>${i.n}: ${i.s}</div>`).join('');
         }
 
-        function openCart() {
-            alert('Resumen del pedido:\n' + state.cart.map(p => p.name).join(', '));
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "reporte_jalisciense.json");
+            downloadAnchorNode.click();
         }
     </script>
 </body>
