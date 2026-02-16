@@ -2,213 +2,605 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Jalisciense Pro v3.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS | Mi Negocio</title>
     <style>
+        /* --- CONFIGURACIÓN BASE Y VARIABLES CSS --- */
         :root {
-            --primary: #6A1B9A; --accent: #00E676; --bg: #F3E5F5;
-            --card: #FFFFFF; --text: #2D3436; --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --primary: #2c3e50; /* Azul Oscuro */
+            --secondary: #34495e; /* Azul Grisáceo */
+            --accent: #3498db; /* Azul Brillante */
+            --success: #27ae60; /* Verde */
+            --danger: #c0392b; /* Rojo */
+            --light: #ecf0f1; /* Gris Claro Fondo */
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --radius: 8px;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light);
+            color: var(--primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Evita scroll doble en móviles */
         }
 
-        /* --- NAVEGACIÓN Y PANTALLAS --- */
-        .screen { display: none; padding: 15px; animation: fadeIn 0.3s; }
-        .active-screen { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- UTILIDADES --- */
+        .hidden { display: none !important; }
+        .btn {
+            border: none; padding: 10px 15px; border-radius: var(--radius); cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--primary); color: var(--white); }
+        .btn-accent { background-color: var(--accent); color: var(--white); }
+        .btn-success { background-color: var(--success); color: var(--white); }
+        .btn-danger { background-color: var(--danger); color: var(--white); }
+        .btn-block { width: 100%; }
+        
+        input, select {
+            padding: 10px; border: 1px solid #bdc3c7; border-radius: var(--radius); font-size: 1rem; width: 100%; margin-bottom: 10px;
+        }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        header {
+            background-color: var(--primary); color: var(--white); padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--shadow); z-index: 10;
+        }
+        header h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+
+        main {
+            flex: 1; overflow-y: auto; padding: 15px; position: relative;
+        }
+
+        /* --- BARRA DE NAVEGACIÓN INFERIOR (Mobile Style) --- */
+        nav.bottom-nav {
+            background-color: var(--white); border-top: 1px solid #bdc3c7; display: flex; justify-content: space-around; padding: 10px 0;
+        }
+        nav button {
+            background: none; border: none; font-size: 0.8rem; color: var(--secondary); display: flex; flex-direction: column; align-items: center;
+        }
+        nav button.active { color: var(--accent); font-weight: bold; }
+        nav button span.icon { font-size: 1.5rem; margin-bottom: 2px; }
 
         /* --- LOGIN --- */
-        #login-overlay {
-            position: fixed; inset: 0; background: var(--primary);
-            display: flex; align-items: center; justify-content: center; z-index: 9999;
+        #login-view {
+            display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center;
         }
-        .login-box { background: white; padding: 25px; border-radius: 20px; width: 80%; max-width: 320px; text-align: center; }
-
-        /* --- CARDS --- */
-        .card { background: white; padding: 15px; border-radius: 15px; box-shadow: var(--shadow); margin-bottom: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .item-card { 
-            background: white; border: 1px solid #eee; padding: 12px; border-radius: 12px; 
-            text-align: center; cursor: pointer; transition: 0.2s;
+        .user-card {
+            background: var(--white); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); width: 300px; margin-bottom: 20px; cursor: pointer; transition: 0.3s; border: 2px solid transparent;
         }
-        .item-card:active { background: #E1BEE7; transform: scale(0.95); }
+        .user-card:hover { border-color: var(--accent); transform: translateY(-3px); }
 
-        /* --- HEADER & NAV --- */
-        nav { 
-            position: fixed; bottom: 0; width: 100%; background: white; 
-            display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd;
+        /* --- POS (PUNTO DE VENTA) --- */
+        .pos-layout { display: flex; flex-direction: column; height: 100%; gap: 15px; }
+        
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; overflow-y: auto; flex: 1;
         }
-        .nav-btn { background: none; border: none; color: #999; font-weight: bold; font-size: 0.8rem; }
-        .nav-btn.active { color: var(--primary); }
-        .hidden { display: none !important; }
-
-        /* --- BOTONES --- */
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--accent); color: #004d25; }
-
-        .cart-bar {
-            position: fixed; bottom: 75px; left: 15px; right: 15px;
-            background: var(--primary); color: white; padding: 15px;
-            border-radius: 50px; display: none; justify-content: space-between; align-items: center;
+        
+        .product-card {
+            background: var(--white); padding: 10px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; height: 100%; border: 1px solid transparent;
         }
+        .product-card:active { background-color: #e8f6f3; border-color: var(--success); }
+        .product-price { font-weight: bold; color: var(--success); font-size: 1.1rem; }
+        .product-stock { font-size: 0.8rem; color: #7f8c8d; }
+        .low-stock { color: var(--danger); font-weight: bold; }
+
+        /* Carrito Flotante / Panel */
+        .cart-panel {
+            background: var(--white); border-top: 2px solid var(--primary); padding: 15px; border-radius: var(--radius) var(--radius) 0 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ecf0f1; padding: 8px 0; }
+        .cart-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin: 10px 0; }
+
+        /* --- INVENTARIO & TABLAS --- */
+        .table-container { overflow-x: auto; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--secondary); color: var(--white); }
+        tr:hover { background-color: #f1f1f1; }
+
+        /* --- DASHBOARD --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--white); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        .stat-label { color: #7f8c8d; font-size: 0.9rem; }
+
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2>🍦 Bienvenida</h2>
-            <input type="text" id="user-in" placeholder="Usuario" style="width:90%; padding:10px; margin:5px;"><br>
-            <input type="password" id="pass-in" placeholder="Contraseña" style="width:90%; padding:10px; margin:5px;"><br>
-            <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
+    <header id="main-header" class="hidden">
+        <h1>🏪 <span id="app-title">Mi Negocio</span></h1>
+        <div>
+            <span id="user-display" style="font-size: 0.9rem; margin-right: 10px;"></span>
+            <button class="btn btn-danger" style="padding: 5px 10px;" onclick="app.logout()">🚪</button>
         </div>
-    </div>
+    </header>
 
-    <div id="app-content">
-        <div id="scr-pos" class="screen active-screen">
-            <div class="card">
-                <div style="display:flex; gap:5px; margin-bottom:15px;">
-                    <button class="btn btn-primary" onclick="setFilter('fruta')">Fruta</button>
-                    <button class="btn btn-primary" onclick="setFilter('crema')">Crema</button>
-                    <button class="btn btn-primary" onclick="setFilter('paleta')">Paletas</button>
+    <main id="main-content">
+        
+        <section id="login-view">
+            <h2 style="margin-bottom: 30px;">Selecciona tu Perfil</h2>
+            <div class="user-card" onclick="app.login('admin')">
+                <div style="font-size: 3rem;">🤵‍♂️</div>
+                <h3>Administrador</h3>
+                <p>Acceso Total</p>
+            </div>
+            <div class="user-card" onclick="app.login('cajero')">
+                <div style="font-size: 3rem;">👲</div>
+                <h3>Cajero</h3>
+                <p>Solo Ventas</p>
+            </div>
+        </section>
+
+        <section id="pos-view" class="hidden pos-layout">
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="search-product" placeholder="🔍 Buscar producto..." oninput="app.renderProducts(this.value)">
+                <select id="filter-category" onchange="app.renderProducts()" style="width: auto;">
+                    <option value="">Todas</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Electrónica">Electrónica</option>
+                    <option value="Hogar">Hogar</option>
+                </select>
+            </div>
+
+            <div id="products-container" class="product-grid">
                 </div>
-                <div class="grid" id="pos-grid"></div>
-            </div>
-        </div>
 
-        <div id="scr-admin" class="screen">
-            <div class="card" style="background:var(--primary); color:white; text-align:center;">
-                <h3>Caja Actual</h3>
-                <h1 id="cash-display">$0</h1>
+            <div class="cart-panel">
+                <div id="cart-items" style="max-height: 150px; overflow-y: auto;">
+                    <p style="text-align:center; color:#999;">Carrito vacío</p>
+                </div>
+                <div class="cart-total">Total: $<span id="cart-total">0.00</span></div>
+                <button class="btn btn-success btn-block" onclick="app.checkout()">💰 COBRAR</button>
             </div>
-            <div class="card">
-                <h3>Inventario Actual</h3>
-                <div id="inv-list"></div>
+        </section>
+
+        <section id="inventory-view" class="hidden">
+            <h2>📦 Gestión de Inventario</h2>
+            <br>
+            
+            <div style="background:var(--white); padding:15px; border-radius:var(--radius); box-shadow:var(--shadow);">
+                <h4>Agregar Nuevo Producto</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                    <input type="text" id="new-name" placeholder="Nombre Producto">
+                    <input type="number" id="new-price" placeholder="Precio ($)">
+                    <input type="text" id="new-cat" placeholder="Categoría">
+                    <input type="number" id="new-stock" placeholder="Stock Inicial">
+                </div>
+                <button class="btn btn-accent btn-block" onclick="app.addProduct()">➕ Agregar Producto</button>
             </div>
-            <button class="btn btn-primary" onclick="exportData()">Descargar Reporte</button>
-        </div>
-    </div>
 
-    <div id="cart-bar" class="cart-bar" onclick="finishSale()">
-        <span>🛒 <span id="cart-count">0</span> productos</span>
-        <span id="cart-total">$0</span>
-        <span>COBRAR</span>
-    </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
 
-    <nav id="main-nav">
-        <button id="n-pos" class="nav-btn active" onclick="go('pos')">VENTA</button>
-        <button id="n-admin" class="nav-btn" onclick="go('admin')">ADMIN</button>
+        <section id="admin-view" class="hidden">
+            <h2>📊 Panel de Administración</h2>
+            <br>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">$<span id="daily-sales">0</span></div>
+                    <div class="stat-label">Ventas Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value"><span id="items-sold">0</span></div>
+                    <div class="stat-label">Productos Vendidos</div>
+                </div>
+            </div>
+
+            <h3>Acciones</h3>
+            <div style="display:grid; gap:10px; margin-top:10px;">
+                <button class="btn btn-primary" onclick="app.exportCSV()">📥 Exportar Reporte CSV</button>
+                <button class="btn btn-accent" onclick="app.closeRegister()">🔒 Cerrar Caja (Reset Día)</button>
+                <button class="btn btn-danger" onclick="app.factoryReset()">⚠️ Resetear Base de Datos</button>
+            </div>
+
+            <h3 style="margin-top:20px;">Últimas Transacciones</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Total</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-history-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <nav id="bottom-nav" class="bottom-nav hidden">
+        <button onclick="app.nav('pos-view')" id="btn-nav-pos" class="active">
+            <span class="icon">🛒</span>
+            <span>Ventas</span>
+        </button>
+        <button onclick="app.nav('inventory-view')" id="btn-nav-inv">
+            <span class="icon">📦</span>
+            <span>Inventario</span>
+        </button>
+        <button onclick="app.nav('admin-view')" id="btn-nav-admin">
+            <span class="icon">📊</span>
+            <span>Admin</span>
+        </button>
     </nav>
 
     <script>
-        // 1. Datos iniciales
-        const DB_KEY = 'jalisciense_db_v3';
-        const initialFlavors = [
-            {n:'Jamaica', t:'fruta', s:20, p:20}, {n:'Maracuya', t:'fruta', s:20, p:20},
-            {n:'Horchata', t:'crema', s:20, p:15}, {n:'Mazapan', t:'crema', s:20, p:15},
-            {n:'Paleta Agua', t:'paleta', s:50, p:25}
-        ];
+        /**
+         * LÓGICA DEL SISTEMA POS
+         * Estructura basada en objetos y localStorage
+         */
+        const app = {
+            data: {
+                products: [],
+                cart: [],
+                sales: [],
+                currentUser: null
+            },
 
-        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            cash: 0, inventory: initialFlavors, sales: []
+            // --- INICIALIZACIÓN ---
+            init: function() {
+                this.loadData();
+                this.renderProducts();
+            },
+
+            // Cargar datos de localStorage o crear datos de prueba
+            loadData: function() {
+                const storedProducts = localStorage.getItem('pos_products');
+                const storedSales = localStorage.getItem('pos_sales');
+
+                if (storedProducts) {
+                    this.data.products = JSON.parse(storedProducts);
+                } else {
+                    // Datos de prueba iniciales
+                    this.data.products = [
+                        { id: 1, name: "Camiseta Básica", price: 150.00, stock: 20, category: "Ropa" },
+                        { id: 2, name: "Jeans Slim", price: 450.00, stock: 10, category: "Ropa" },
+                        { id: 3, name: "Audífonos BT", price: 300.00, stock: 5, category: "Electrónica" },
+                        { id: 4, name: "Cargador USB-C", price: 120.00, stock: 15, category: "Electrónica" },
+                        { id: 5, name: "Taza Cerámica", price: 80.00, stock: 30, category: "Hogar" }
+                    ];
+                    this.saveData();
+                }
+
+                if (storedSales) {
+                    this.data.sales = JSON.parse(storedSales);
+                }
+            },
+
+            saveData: function() {
+                localStorage.setItem('pos_products', JSON.stringify(this.data.products));
+                localStorage.setItem('pos_sales', JSON.stringify(this.data.sales));
+            },
+
+            // --- SISTEMA DE ACCESO ---
+            login: function(role) {
+                this.data.currentUser = role;
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('main-header').classList.remove('hidden');
+                document.getElementById('bottom-nav').classList.remove('hidden');
+                document.getElementById('user-display').textContent = role === 'admin' ? 'Admin' : 'Cajero';
+
+                // Restricciones de UI según rol
+                if (role === 'cajero') {
+                    document.getElementById('btn-nav-inv').classList.add('hidden');
+                    document.getElementById('btn-nav-admin').classList.add('hidden');
+                } else {
+                    document.getElementById('btn-nav-inv').classList.remove('hidden');
+                    document.getElementById('btn-nav-admin').classList.remove('hidden');
+                }
+
+                this.nav('pos-view');
+            },
+
+            logout: function() {
+                this.data.currentUser = null;
+                this.data.cart = [];
+                location.reload(); // Recarga simple para limpiar estado UI
+            },
+
+            // --- NAVEGACIÓN ---
+            nav: function(viewId) {
+                // Ocultar todas las vistas
+                ['pos-view', 'inventory-view', 'admin-view'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+                // Quitar clase active de botones nav
+                document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+
+                // Mostrar vista seleccionada
+                document.getElementById(viewId).classList.remove('hidden');
+                
+                // Actualizar botón activo
+                if(viewId === 'pos-view') document.getElementById('btn-nav-pos').classList.add('active');
+                if(viewId === 'inventory-view') document.getElementById('btn-nav-inv').classList.add('active');
+                if(viewId === 'admin-view') document.getElementById('btn-nav-admin').classList.add('active');
+
+                // Renderizar contenido específico si es necesario
+                if (viewId === 'inventory-view') this.renderInventory();
+                if (viewId === 'admin-view') this.renderAdmin();
+            },
+
+            // --- MÓDULO POS ---
+            renderProducts: function(query = '') {
+                const container = document.getElementById('products-container');
+                const categoryFilter = document.getElementById('filter-category').value;
+                container.innerHTML = '';
+
+                const filtered = this.data.products.filter(p => {
+                    const matchText = p.name.toLowerCase().includes(query.toLowerCase());
+                    const matchCat = categoryFilter === '' || p.category === categoryFilter;
+                    return matchText && matchCat;
+                });
+
+                filtered.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.onclick = () => this.addToCart(p.id);
+                    card.innerHTML = `
+                        <div>
+                            <div style="font-size:2rem; margin-bottom:5px;">📦</div>
+                            <b>${p.name}</b>
+                            <div class="product-stock ${p.stock < 5 ? 'low-stock' : ''}">Stock: ${p.stock}</div>
+                        </div>
+                        <div class="product-price">$${p.price.toFixed(2)}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            },
+
+            addToCart: function(id) {
+                const product = this.data.products.find(p => p.id === id);
+                
+                if (product.stock <= 0) {
+                    alert('❌ Producto agotado');
+                    return;
+                }
+
+                const itemInCart = this.data.cart.find(i => i.id === id);
+                
+                // Verificar si agregando uno más superamos el stock real
+                const currentQtyInCart = itemInCart ? itemInCart.qty : 0;
+                if (currentQtyInCart + 1 > product.stock) {
+                    alert('⚠️ No hay suficiente stock disponible');
+                    return;
+                }
+
+                if (itemInCart) {
+                    itemInCart.qty++;
+                } else {
+                    this.data.cart.push({ ...product, qty: 1 });
+                }
+                this.renderCart();
+            },
+
+            removeFromCart: function(id) {
+                this.data.cart = this.data.cart.filter(i => i.id !== id);
+                this.renderCart();
+            },
+
+            renderCart: function() {
+                const container = document.getElementById('cart-items');
+                const totalEl = document.getElementById('cart-total');
+                container.innerHTML = '';
+                
+                let total = 0;
+
+                if (this.data.cart.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">Carrito vacío</p>';
+                } else {
+                    this.data.cart.forEach(item => {
+                        total += item.price * item.qty;
+                        const div = document.createElement('div');
+                        div.className = 'cart-item';
+                        div.innerHTML = `
+                            <span><b>${item.qty}x</b> ${item.name}</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span>$${(item.price * item.qty).toFixed(2)}</span>
+                                <button class="btn btn-danger" style="padding:2px 8px; font-size:0.8rem;" onclick="event.stopPropagation(); app.removeFromCart(${item.id})">×</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+                totalEl.textContent = total.toFixed(2);
+            },
+
+            checkout: function() {
+                if (this.data.cart.length === 0) {
+                    alert('⚠️ El carrito está vacío');
+                    return;
+                }
+
+                if (!confirm(`¿Confirmar cobro por $${document.getElementById('cart-total').textContent}?`)) return;
+
+                // Procesar venta
+                const sale = {
+                    id: Date.now(),
+                    date: new Date().toLocaleString(),
+                    total: this.data.cart.reduce((sum, i) => sum + (i.price * i.qty), 0),
+                    items: [...this.data.cart], // Copia
+                    cashier: this.data.currentUser
+                };
+
+                // Actualizar stock
+                this.data.cart.forEach(cartItem => {
+                    const product = this.data.products.find(p => p.id === cartItem.id);
+                    if (product) {
+                        product.stock -= cartItem.qty;
+                    }
+                });
+
+                // Guardar
+                this.data.sales.push(sale);
+                this.saveData();
+
+                // Limpiar
+                this.data.cart = [];
+                this.renderCart();
+                this.renderProducts(); // Actualizar stock visual
+                alert('✅ ¡Venta realizada con éxito!');
+            },
+
+            // --- MÓDULO INVENTARIO ---
+            renderInventory: function() {
+                const tbody = document.getElementById('inventory-table-body');
+                tbody.innerHTML = '';
+                
+                this.data.products.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${p.name}<br><small style="color:#7f8c8d">${p.category}</small></td>
+                        <td>$${p.price.toFixed(2)}</td>
+                        <td>
+                            <input type="number" value="${p.stock}" min="0" style="width:60px; margin:0;" 
+                                onchange="app.updateStock(${p.id}, this.value)">
+                        </td>
+                        <td>
+                            <button class="btn btn-danger" style="padding:5px 10px;" onclick="app.deleteProduct(${p.id})">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+
+            addProduct: function() {
+                const name = document.getElementById('new-name').value;
+                const price = parseFloat(document.getElementById('new-price').value);
+                const category = document.getElementById('new-cat').value;
+                const stock = parseInt(document.getElementById('new-stock').value);
+
+                if (!name || isNaN(price) || !category || isNaN(stock)) {
+                    alert('⚠️ Por favor completa todos los campos correctamente');
+                    return;
+                }
+
+                const newProduct = {
+                    id: Date.now(),
+                    name, price, category, stock
+                };
+
+                this.data.products.push(newProduct);
+                this.saveData();
+                this.renderInventory();
+                
+                // Limpiar campos
+                document.getElementById('new-name').value = '';
+                document.getElementById('new-price').value = '';
+                document.getElementById('new-cat').value = '';
+                document.getElementById('new-stock').value = '';
+                alert('✅ Producto agregado');
+            },
+
+            updateStock: function(id, newStock) {
+                const product = this.data.products.find(p => p.id === id);
+                if (product) {
+                    product.stock = parseInt(newStock);
+                    this.saveData();
+                }
+            },
+
+            deleteProduct: function(id) {
+                if(confirm('¿Seguro que deseas eliminar este producto?')) {
+                    this.data.products = this.data.products.filter(p => p.id !== id);
+                    this.saveData();
+                    this.renderInventory();
+                }
+            },
+
+            // --- MÓDULO ADMIN ---
+            renderAdmin: function() {
+                // Métricas Hoy
+                const today = new Date().toLocaleDateString();
+                const salesToday = this.data.sales.filter(s => new Date(s.id).toLocaleDateString() === today);
+                
+                const totalMoney = salesToday.reduce((sum, s) => sum + s.total, 0);
+                const itemsCount = salesToday.reduce((sum, s) => sum + s.items.reduce((is, i) => is + i.qty, 0), 0);
+
+                document.getElementById('daily-sales').textContent = totalMoney.toFixed(2);
+                document.getElementById('items-sold').textContent = itemsCount;
+
+                // Historial
+                const historyBody = document.getElementById('sales-history-body');
+                historyBody.innerHTML = '';
+                // Mostrar últimas 10 ventas
+                this.data.sales.slice().reverse().slice(0, 10).forEach(s => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(s.id).toLocaleTimeString()}</td>
+                        <td>$${s.total.toFixed(2)}</td>
+                        <td><small>${s.items.length} productos</small></td>
+                    `;
+                    historyBody.appendChild(tr);
+                });
+            },
+
+            exportCSV: function() {
+                if (this.data.sales.length === 0) {
+                    alert('No hay ventas para exportar');
+                    return;
+                }
+                
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "Fecha,Hora,Vendedor,Total,Productos\n";
+
+                this.data.sales.forEach(row => {
+                    const date = new Date(row.id).toLocaleDateString();
+                    const time = new Date(row.id).toLocaleTimeString();
+                    const itemsSummary = row.items.map(i => `${i.qty}x ${i.name}`).join(' | ');
+                    csvContent += `${date},${time},${row.cashier},${row.total},"${itemsSummary}"\n`;
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "ventas_reporte.csv");
+                document.body.appendChild(link);
+                link.click();
+            },
+
+            closeRegister: function() {
+                if(confirm('¿Estás seguro de cerrar caja? Esto pondrá el contador de hoy a cero visualmente, pero el historial se mantiene.')) {
+                   alert('Caja cerrada. Total recaudado hoy: $' + document.getElementById('daily-sales').textContent);
+                   location.reload(); 
+                }
+            },
+
+            factoryReset: function() {
+                const secret = prompt("Escribe 'BORRAR' para confirmar el reseteo total de fábrica:");
+                if (secret === 'BORRAR') {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
         };
 
-        let cart = [];
-        let currentFilter = 'fruta';
-
-        // 2. Funciones de Navegación y Login
-        function handleLogin() {
-            const u = document.getElementById('user-in').value;
-            if(u === 'admin') {
-                document.getElementById('login-overlay').style.display = 'none';
-                updateUI();
-            }
-        }
-
-        function go(scr) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('scr-' + scr).classList.add('active-screen');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('n-' + scr).classList.add('active');
-        }
-
-        // 3. Lógica de Negocio
-        function setFilter(f) {
-            currentFilter = f;
-            updateUI();
-        }
-
-        function addToCart(index) {
-            const item = db.inventory[index];
-            if(item.s > 0) {
-                cart.push({...item, originalIndex: index});
-                updateUI();
-            } else {
-                alert("Sin inventario");
-            }
-        }
-
-        function finishSale() {
-            let total = 0;
-            cart.forEach(item => {
-                total += item.p;
-                db.inventory[item.originalIndex].s -= 1; // Resta 1 unidad/litro
-            });
-            db.cash += total;
-            db.sales.push({ date: new Date(), total: total, items: cart.length });
-            
-            cart = [];
-            save();
-            alert("Venta completada");
-            updateUI();
-        }
-
-        function save() {
-            localStorage.setItem(DB_KEY, JSON.stringify(db));
-        }
-
-        function updateUI() {
-            // Render Venta
-            const grid = document.getElementById('pos-grid');
-            grid.innerHTML = '';
-            db.inventory.forEach((item, index) => {
-                if(item.t === currentFilter) {
-                    grid.innerHTML += `
-                        <div class="item-card" onclick="addToCart(${index})">
-                            <strong>${item.n}</strong><br>
-                            <small>${item.s} disp.</small><br>
-                            <b>$${item.p}</b>
-                        </div>`;
-                }
-            });
-
-            // Barra de carrito
-            const bar = document.getElementById('cart-bar');
-            if(cart.length > 0) {
-                bar.style.display = 'flex';
-                document.getElementById('cart-count').innerText = cart.length;
-                document.getElementById('cart-total').innerText = '$' + cart.reduce((a,b)=>a+b.p, 0);
-            } else {
-                bar.style.display = 'none';
-            }
-
-            // Admin
-            document.getElementById('cash-display').innerText = '$' + db.cash;
-            const invList = document.getElementById('inv-list');
-            invList.innerHTML = db.inventory.map(i => `<div>${i.n}: ${i.s}</div>`).join('');
-        }
-
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "reporte_jalisciense.json");
-            downloadAnchorNode.click();
-        }
+        // Iniciar App
+        app.init();
     </script>
 </body>
 </html>
