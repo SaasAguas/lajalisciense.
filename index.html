@@ -362,4 +362,188 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('screen-'+screenId).classList.add('active-screen');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.clas
+            if(btn) btn.classList.add('active');
+            updateUI();
+        }
+
+        function setFilter(type, btn) {
+            const grid = document.getElementById('flavors-grid');
+            const pc = document.getElementById('price-container');
+            const fm = document.getElementById('fixed-price-msg');
+            grid.innerHTML = '';
+            if(type === 'paleta') { pc.style.display='none'; fm.style.display='block'; }
+            else { pc.style.display='block'; fm.style.display='none'; }
+            
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(item => {
+                if(item.t !== type) return;
+                const card = document.createElement('div');
+                card.className = 'flavor-card';
+                card.onclick = () => addToCart(item);
+                
+                let cs = 'color:#2c2c2c'; 
+                let pd = '';
+                if(item.t === 'crema') cs = 'color:#AB47BC';
+                else if (item.t === 'fruta') cs = 'color:#BA68C8';
+                else if(item.t==='paleta') {
+                     cs='color:#6A1B9A'; 
+                     pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`;
+                }
+                
+                let stockDisp = item.hidden ? "♾️" : item.s;
+                card.innerHTML = `<strong style="${cs}">${item.n}</strong><br>${pd}<span class="stock-badge">${stockDisp}</span>`;
+                grid.appendChild(card);
+            });
+            if(btn) { document.querySelectorAll('#screen-pos .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        }
+
+        function addToCart(item) {
+            if(item.s <= 0) return alert("Sin stock");
+            let price = (item.t==='paleta')?(item.p||10):parseFloat(document.getElementById('price-select').value);
+            const ex = cart.find(c=>c.name===item.n && c.price===price);
+            if(ex) { if(ex.qty>=item.s) return alert("No hay stock"); ex.qty++; }
+            else cart.push({name:item.n, price:price, qty:1, type:item.t, isHidden: item.hidden});
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const bar = document.getElementById('cart-bar');
+            if(cart.length>0) {
+                bar.style.display='flex';
+                const t = cart.reduce((a,i)=>a+(i.price*i.qty),0);
+                const c = cart.reduce((a,i)=>a+i.qty,0);
+                document.getElementById('cart-total').innerText=`$${t}`;
+                document.getElementById('cart-count').innerText=c;
+            } else bar.style.display='none';
+        }
+
+        function showCheckout() {
+            const list = document.getElementById('checkout-list');
+            list.innerHTML = ''; let t = 0;
+            cart.forEach((i, idx) => {
+                t += i.price*i.qty;
+                const u = i.type==='paleta'?'pz':'L';
+                list.innerHTML += `<div class="cart-list-item"><div><strong>${i.name}</strong><br>${i.qty}${u} x $${i.price} = $${i.price*i.qty}</div><button class="delete-btn" onclick="removeFromCart(${idx})">✕</button></div>`;
+            });
+            document.getElementById('checkout-total').innerText = `Total: $${t}`;
+            document.getElementById('checkout-modal').style.display='flex';
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx,1); updateCartUI();
+            if(cart.length===0) document.getElementById('checkout-modal').style.display='none';
+            else showCheckout();
+        }
+
+        function finishSale() {
+            let tc = 0, tl = 0, tp = 0, det = [];
+            cart.forEach(c => {
+                const i = db.inventory.find(inv=>inv.n===c.name);
+                if(i && !i.hidden) i.s -= c.qty;
+                tc += c.price*c.qty;
+                if(c.type==='paleta') { tp+=c.qty; det.push(`${c.qty}pz ${c.name}`); }
+                else { tl+=c.qty; det.push(`${c.qty}L ${c.name}`); }
+            });
+            db.cash+=tc; db.soldL+=tl; db.soldP+=tp;
+            db.history.unshift({d:new Date().toLocaleTimeString(), a:'VENTA', det:det.join(" + "), m:`+$${tc}`});
+            cart=[]; document.getElementById('checkout-modal').style.display='none';
+            save(); alert("✅ Venta registrada");
+            const ab = document.querySelector('#screen-pos .filter-btn.active');
+            if(ab) ab.click();
+        }
+
+        function setProdMode(m) {
+            prodMode = m;
+            ['fruta','crema','paleta'].forEach(mode => {
+                document.getElementById(`btn-prod-${mode}`).className = 'filter-btn' + (mode===m?' active':'');
+            });
+            document.getElementById('prod-subtitle').innerText = m==='paleta'?'Relleno de Paletas':'Producción de '+m;
+            renderProdSelect();
+        }
+
+        function renderProdSelect() {
+            const s = document.getElementById('prod-flavor');
+            s.innerHTML = '';
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
+                if(i.t===prodMode && !i.hidden) s.innerHTML += `<option value="${i.n}">${i.n}</option>`;
+            });
+        }
+
+        function adjustProd(a) {
+            const i = document.getElementById('prod-qty');
+            let v = parseInt(i.value)+a; if(v<1) v=1; i.value=v;
+        }
+
+        function saveProduction() {
+            const n = document.getElementById('prod-flavor').value;
+            const q = parseInt(document.getElementById('prod-qty').value);
+            const i = db.inventory.find(inv=>inv.n===n);
+            if(i) {
+                i.s += q;
+                if(i.t==='paleta') db.prodP += q; else db.prodL += q;
+                const u = i.t==='paleta'?'pz':'L';
+                db.history.unshift({d:new Date().toLocaleTimeString(), a:'PROD', det:`${q}${u} ${n}`, m:'-'});
+                save(); alert("Guardado");
+            }
+        }
+
+        function toggleInvView() {
+            if(invView==='fruta') invView='crema'; else if(invView==='crema') invView='paleta'; else invView='fruta';
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('stat-cash').innerText=`$${db.cash}`;
+            document.getElementById('stat-sold-l').innerText=`${db.soldL||0} L`;
+            document.getElementById('stat-sold-p').innerText=`${db.soldP||0} Pz`;
+            document.getElementById('stat-prod-l').innerText=`${db.prodL||0} L`;
+            document.getElementById('stat-prod-p').innerText=`${db.prodP||0} Pz`;
+            document.getElementById('inv-title').innerText='Inventario de '+invView;
+            const tb = document.querySelector('#inv-table tbody');
+            tb.innerHTML = '';
+            
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
+                if(i.t===invView && !i.hidden) {
+                    let rc = i.s<5?'color:red;font-weight:bold;':'';
+                    tb.innerHTML += `<tr><td>${i.n}</td><td style="${rc}">${i.s}</td></tr>`;
+                }
+            });
+            document.querySelector('#hist-table tbody').innerHTML = db.history.map(h => 
+                `<tr><td>${h.d}</td><td>${h.a}</td><td>${h.det}</td><td style="font-weight:bold;">${h.m}</td></tr>`
+            ).join('');
+            renderProdSelect(); updateCartUI();
+        }
+
+        function closeDay() {
+            if(!confirm("¿Cerrar caja? Se reiniciará el dinero.")) return;
+            db.history.unshift({d:new Date().toLocaleTimeString(), a:'CIERRE', det:'--- CORTE ---', m:'$0'});
+            db.cash=0; db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; save();
+        }
+
+        function clearHistory() {
+            if(confirm("¿Estás seguro de BORRAR TODO el historial?\nEsta acción es permanente.")) {
+                if(confirm("⚠️ CONFIRMACIÓN FINAL\nSe borrarán todos los registros de ventas.")) {
+                    db.history = [];
+                    save();
+                    alert("Historial eliminado.");
+                }
+            }
+        }
+
+        function downloadExcel() {
+            let csv = "\uFEFFFecha,Accion,Detalle,Monto\n";
+            db.history.forEach(h => {
+                let cleanDet = h.det.replace(/,/g, ' '); 
+                csv += `${h.d},${h.a},"${cleanDet}",${h.m}\n`;
+            });
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `Corte_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+            a.click();
+        }
+
+        const firstBtn = document.querySelector('.filter-btn');
+        if(firstBtn) setFilter('fruta', firstBtn);
+    </script>
+</body>
+</html>
