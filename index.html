@@ -6,7 +6,6 @@
     <title>La Jalisciense Pro</title>
 
     <link rel="manifest" href="manifest.json">
-
     <link rel="icon" type="image/png" href="1771074901862.png">
     <link rel="shortcut icon" type="image/png" href="1771074901862.png">
     <link rel="apple-touch-icon" href="1771074901862.png">
@@ -27,7 +26,6 @@
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             margin: 0; background-color: var(--bg); color: var(--text); padding-bottom: 90px; 
-            /* Previene el "pull-to-refresh" en móviles para que parezca app nativa */
             overscroll-behavior-y: none;
         }
         
@@ -129,7 +127,7 @@
             <button class="btn btn-primary" onclick="attemptLogin()">Entrar</button>
             <p id="login-error" style="color:red; display:none; margin-top:10px;">Datos incorrectos</p>
         </div>
-        <p style="color:rgba(255,255,255,0.7); margin-top:20px; font-size:0.8rem;">La Jalisciense App v2.2</p>
+        <p style="color:rgba(255,255,255,0.7); margin-top:20px; font-size:0.8rem;">La Jalisciense App v3.0</p>
     </div>
 
     <div style="background: var(--primary); color: white; padding: 10px 15px; position: sticky; top:0; z-index: 900; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -137,7 +135,7 @@
             <img src="1771074901862.png" style="width:30px; height:30px; border-radius:50%; background:white; padding:2px;">
             <span style="font-weight:bold; font-size:0.9rem;" id="user-display">Invitado</span>
         </div>
-        <button class="logout-btn" onclick="doLogout()">Salir</button>
+        <button class="logout-btn" style="font-size: 1.5rem; background: none; padding: 0;" onclick="openSettings()">⚙️</button>
     </div>
 
     <div id="screen-pos" class="screen">
@@ -258,6 +256,55 @@
         </div>
     </div>
 
+    <div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; text-align:center; position:relative;">
+            <button onclick="closeSettings()" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:1.5rem; color:var(--danger); cursor:pointer;">✕</button>
+            <h2 style="margin-top:0;">Ajustes ⚙️</h2>
+            <button class="btn btn-primary" onclick="showAddFlavor()">Agregar Sabores 🍓</button>
+            <button class="btn btn-primary" style="background:var(--primary-light);" onclick="showAddPaleta()">Agregar Paletas 🍭</button>
+            <button class="btn btn-success" style="background:#BA68C8; color:white;" onclick="showEditFlavors()">Editar Sabores ✏️</button>
+            <button class="btn btn-danger" style="margin-top:25px;" onclick="doLogout(); closeSettings();">Cerrar Sesión 🚪</button>
+        </div>
+    </div>
+
+    <div id="add-flavor-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3100; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px;">
+            <h3 style="color:var(--primary); margin-top:0;">Nuevo Sabor (Agua)</h3>
+            <input type="text" id="new-flavor-name" class="login-input" placeholder="Nombre del sabor">
+            <select id="new-flavor-type" class="login-input">
+                <option value="fruta">Fruta 🍓</option>
+                <option value="crema">Crema 🥛</option>
+            </select>
+            <input type="number" id="new-flavor-stock" class="login-input" placeholder="Stock inicial (Litros)" min="0">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('add-flavor-modal').style.display='none'">Cancelar</button>
+                <button class="btn btn-success" style="margin:0;" onclick="saveNewFlavor()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-paleta-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3100; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px;">
+            <h3 style="color:var(--primary); margin-top:0;">Nueva Paleta</h3>
+            <input type="text" id="new-paleta-name" class="login-input" placeholder="Nombre de la paleta">
+            <input type="number" id="new-paleta-price" class="login-input" placeholder="Precio Fijo ($)" min="0">
+            <input type="number" id="new-paleta-stock" class="login-input" placeholder="Stock inicial (Piezas)" min="0">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('add-paleta-modal').style.display='none'">Cancelar</button>
+                <button class="btn btn-success" style="margin:0;" onclick="saveNewPaleta()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-flavors-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3100; align-items:center; justify-content:center;">
+        <div style="background:white; width:95%; max-width:500px; padding:20px; border-radius:15px; max-height:90vh; display:flex; flex-direction:column;">
+            <h3 style="color:var(--primary); margin-top:0;">Editar Inventario ✏️</h3>
+            <p style="font-size:0.8rem; color:#666; margin-top:0;">Modifica los campos y presiona 💾 para guardar, o 🗑️ para borrar.</p>
+            <div id="edit-list-container" style="overflow-y:auto; flex:1; margin-bottom:15px;"></div>
+            <button class="btn btn-danger" onclick="document.getElementById('edit-flavors-modal').style.display='none'">Cerrar Panel</button>
+        </div>
+    </div>
+
     <nav>
         <button id="nav-pos" class="nav-btn" onclick="go('pos', this)">
             <span class="nav-icon">🏪</span>Venta
@@ -273,7 +320,7 @@
     <script>
         // --- CONFIGURACIÓN DE USUARIOS ---
         const USERS = {
-            'admin':   { pass: 'admin123', role: 'admin' },   
+            'zekkqi':  { pass: '0802', role: 'admin' },   
             'ventas':  { pass: 'caja1',    role: 'ventas' },  
             'fabrica': { pass: 'prod1',    role: 'fabrica' }  
         };
@@ -325,8 +372,127 @@
             }
         }
 
-        // --- BASE DE DATOS ---
-        const DB_KEY = 'jalisciense_final_v8.1';
+        // --- FUNCIONES DEL PANEL DE AJUSTES ---
+        function openSettings() {
+            if(CURRENT_USER && CURRENT_USER.role !== 'admin') {
+                if(confirm("¿Deseas cerrar sesión?")) doLogout();
+                return;
+            }
+            document.getElementById('settings-modal').style.display='flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display='none';
+        }
+
+        function showAddFlavor() {
+            document.getElementById('new-flavor-name').value = '';
+            document.getElementById('new-flavor-stock').value = '';
+            document.getElementById('add-flavor-modal').style.display='flex';
+        }
+
+        function saveNewFlavor() {
+            const n = document.getElementById('new-flavor-name').value.trim();
+            const t = document.getElementById('new-flavor-type').value;
+            const s = parseInt(document.getElementById('new-flavor-stock').value) || 0;
+            if(!n) return alert("Por favor, ingresa un nombre.");
+            
+            if(db.inventory.find(i => i.n.toLowerCase() === n.toLowerCase())) return alert("Ese sabor ya existe.");
+            
+            db.inventory.push({n: n, t: t, s: s});
+            save();
+            document.getElementById('add-flavor-modal').style.display='none';
+            alert("✅ Nuevo sabor registrado");
+        }
+
+        function showAddPaleta() {
+            document.getElementById('new-paleta-name').value = '';
+            document.getElementById('new-paleta-price').value = '';
+            document.getElementById('new-paleta-stock').value = '';
+            document.getElementById('add-paleta-modal').style.display='flex';
+        }
+
+        function saveNewPaleta() {
+            const n = document.getElementById('new-paleta-name').value.trim();
+            const p = parseFloat(document.getElementById('new-paleta-price').value) || 0;
+            const s = parseInt(document.getElementById('new-paleta-stock').value) || 0;
+            if(!n) return alert("Por favor, ingresa un nombre.");
+            
+            if(db.inventory.find(i => i.n.toLowerCase() === n.toLowerCase())) return alert("Esta paleta ya existe.");
+            
+            db.inventory.push({n: n, t: 'paleta', s: s, p: p});
+            save();
+            document.getElementById('add-paleta-modal').style.display='none';
+            alert("✅ Nueva paleta registrada");
+        }
+
+        function showEditFlavors() {
+            renderEditList();
+            document.getElementById('edit-flavors-modal').style.display='flex';
+        }
+
+        function renderEditList() {
+            const c = document.getElementById('edit-list-container');
+            c.innerHTML = '';
+            db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach((item, index) => {
+                if(item.hidden) return; 
+                
+                let typeOpts = item.t === 'paleta' 
+                    ? `<option value="paleta" selected>Paleta</option>` 
+                    : `<option value="fruta" ${item.t==='fruta'?'selected':''}>Fruta</option>
+                       <option value="crema" ${item.t==='crema'?'selected':''}>Crema</option>`;
+
+                let priceHtml = item.t === 'paleta' 
+                    ? `<input type="number" id="edit-p-${index}" value="${item.p}" style="width:50px; padding:5px; border:1px solid #ccc; border-radius:5px;" title="Precio">` 
+                    : ``;
+
+                c.innerHTML += `
+                <div style="background:#f9f9f9; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+                    <div style="display:flex; gap:5px; margin-bottom:5px;">
+                        <input type="text" id="edit-n-${index}" value="${item.n}" style="flex:1; padding:5px; border:1px solid #ccc; border-radius:5px; font-weight:bold;">
+                        <select id="edit-t-${index}" style="padding:5px; border:1px solid #ccc; border-radius:5px;">${typeOpts}</select>
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; justify-content:flex-end;">
+                        ${item.t === 'paleta' ? '<span style="font-size:0.8rem; color:#666;">Precio:</span>' : ''}
+                        ${priceHtml}
+                        <span style="font-size:0.8rem; color:#666; margin-left:5px;">Stock:</span>
+                        <input type="number" id="edit-s-${index}" value="${item.s}" style="width:55px; padding:5px; border:1px solid #ccc; border-radius:5px;">
+                        
+                        <button class="btn-success" style="padding:5px 12px; margin-left:10px; border-radius:5px; border:none; cursor:pointer;" onclick="saveEdit(${index})" title="Guardar">💾</button>
+                        <button class="btn-danger" style="padding:5px 12px; border-radius:5px; border:none; cursor:pointer;" onclick="deleteItem(${index})" title="Eliminar">🗑️</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function saveEdit(idx) {
+            const item = db.inventory[idx];
+            item.n = document.getElementById(`edit-n-${idx}`).value;
+            item.t = document.getElementById(`edit-t-${idx}`).value;
+            item.s = parseInt(document.getElementById(`edit-s-${idx}`).value) || 0;
+            if(item.t === 'paleta') {
+                item.p = parseFloat(document.getElementById(`edit-p-${idx}`).value) || 0;
+            }
+            save(); 
+            alert("✅ Cambios guardados correctamente.");
+            
+            const activeBtn = document.querySelector('#screen-pos .filter-btn.active');
+            if(activeBtn) activeBtn.click();
+        }
+
+        function deleteItem(idx) {
+            if(confirm("⚠️ ¿Estás seguro de eliminar este producto por completo del sistema?")) {
+                db.inventory.splice(idx, 1);
+                save();
+                renderEditList(); 
+                
+                const activeBtn = document.querySelector('#screen-pos .filter-btn.active');
+                if(activeBtn) activeBtn.click();
+            }
+        }
+
+        // --- BASE DE DATOS ORIGINAL ---
+        const DB_KEY = 'jalisciense_final_v8.1'; // Mantengo esta llave para no borrar tu historial actual
         
         const realFlavors = [
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
