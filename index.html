@@ -746,6 +746,15 @@
             }
         }
 
+
+        function clearHistory() {
+            if(confirm("🛑 PELIGRO: ¿Estás seguro de BORRAR TODOS los cortes históricos y empezar desde cero?")) {
+                if(confirm("⚠️ CONFIRMACIÓN FINAL. Esta acción no se puede deshacer.")) {
+                    db.historicalCuts = []; db.currentHistory = []; save(); alert("Historial completamente eliminado.");
+                }
+            }
+        }
+        
         function openCutDetail(id) {
             const cut = db.historicalCuts.find(c => c.id === id);
             if(!cut) return;
@@ -768,15 +777,7 @@
 
             document.getElementById('cut-detail-modal').style.display = 'flex';
         }
-
-        function clearHistory() {
-            if(confirm("🛑 PELIGRO: ¿Estás seguro de BORRAR TODOS los cortes históricos y empezar desde cero?")) {
-                if(confirm("⚠️ CONFIRMACIÓN FINAL. Esta acción no se puede deshacer.")) {
-                    db.historicalCuts = []; db.currentHistory = []; save(); alert("Historial completamente eliminado.");
-                }
-            }
-        }
-
+            
         function downloadExcel() {
             let csv = "\uFEFFFecha,Hora,Usuario,Tipo,Movimiento,Suma,Ingreso,Cliente\n";
             db.historicalCuts.forEach(cut => {
