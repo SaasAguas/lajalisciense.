@@ -88,14 +88,44 @@ h2 { margin-top: 0; color: var(--ferguz-pink); font-size: 1.4rem; text-transform
 .progress-bg { width: 100%; background: #ECEFF1; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 5px; }
 .progress-fill { height: 100%; transition: width 0.5s ease-in-out; border-radius: 10px; }
 
-/* LOGIN */
-#login-overlay { background: var(--ferguz-blue); } /* Fondo azul para el login, más relajante */
-.login-box { border-top: 8px solid var(--ferguz-yellow); border-radius: 30px; }
-.login-input { 
-    border: 2px solid #B3E5FC; background: #F5FBFD; padding: 14px; 
-    border-radius: 12px; transition: 0.3s;
+/* LOGIN ACTUALIZADO - AHORA SÍ CUBRE TODO */
+#login-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: var(--ferguz-blue); 
+    z-index: 9999; /* Super por encima de todo */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    overflow-y: auto; 
+    padding: 20px 0; 
 }
-.login-input:focus { border-color: var(--ferguz-pink); outline: none; background: white; }
+
+/* Mejora para que el logo no tenga ese cuadro blanco feo */
+.logo-anim { 
+    width: 150px; 
+    height: auto; 
+    margin-bottom: 20px; 
+    border-radius: 50%; /* Esto redondea la imagen si es cuadrada */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+    background: white; /* Un fondo blanco circular se ve más profesional */
+    padding: 5px;
+}
+
+.login-box { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 30px; 
+    width: 85%; 
+    max-width: 380px; 
+    text-align: center; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+    border-top: 10px solid var(--ferguz-yellow); /* El toque amarillo de Ferguz */
+}
 
 /* HISTORIAL */
 .history-card { border-left: 5px solid var(--ferguz-blue); border-radius: 12px; }
