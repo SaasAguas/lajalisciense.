@@ -1,18 +1,18 @@
 {
-  "name": "La Jalisciense Pro",
-  "short_name": "Jalisciense",
+  "name": "Paleterías Ferguz",
+  "short_name": "Ferguz",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#F3E5F5",
-  "theme_color": "#6A1B9A",
+  "background_color": "#FCE4EC",
+  "theme_color": "#F50057",
   "icons": [
     {
-      "src": "1771074901862.png",
+      "src": "logo_ferguz.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "1771074901862.png",
+      "src": "logo_ferguz.png",
       "sizes": "512x512",
       "type": "image/png"
     }
