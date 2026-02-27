@@ -1,7 +1,30 @@
 // --- CÓDIGO DE CREADOR ---
 const CREATOR_CODE = "08020824";
-const DB_KEY = 'ferguz_corp_v9.1'; 
 
+// --- CONFIGURACIÓN DE FIREBASE (LA NUBE DE FERGUZ) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBbMTFED6FOBFOmew7av_Jgb5oorAjfzvY",
+  authDomain: "paleteria-ferguz.firebaseapp.com",
+  projectId: "paleteria-ferguz",
+  storageBucket: "paleteria-ferguz.firebasestorage.app",
+  messagingSenderId: "196357513704",
+  appId: "1:196357513704:web:458d386fb2bb726604845d"
+};
+
+// 1. Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
+
+// 2. ACTIVAR MODO OFFLINE (Soporte sin internet)
+firestore.enablePersistence()
+  .catch(function(err) {
+      console.error("No se pudo activar el modo offline:", err.code);
+  });
+
+// 3. Referencia a nuestra "Carpeta Maestra" en la nube
+const dbRef = firestore.collection("ferguz_nube").doc("estado_principal");
+
+// --- INVENTARIO POR DEFECTO ---
 const defaultFlavors = [
     {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
     {n:'Lima', t:'fruta', s:20}, {n:'Fresa-Hierbabuena', t:'fruta', s:20}, {n:'Fresa', t:'fruta', s:20},
@@ -21,27 +44,39 @@ const defaultFlavors = [
     {n:'Frapuchino', t:'paleta', s:999, p:10, hidden: true}
 ];
 
-let oldDb = JSON.parse(localStorage.getItem('jalisciense_corp_v9.0'));
-let db = JSON.parse(localStorage.getItem(DB_KEY));
-
-if (!db) {
-    if (oldDb) { db = oldDb; } 
-    else {
-        db = {
-            users: { 'zekkqi': { pass: '0802', role: 'ceo' } },
-            cash: 0, soldL: 0, soldP: 0, prodL: 0, prodP: 0,
-            currentHistory: [], historicalCuts: [], inventory: defaultFlavors
-        };
-    }
-}
+// Base de datos temporal
+let db = {
+    users: { 'zekkqi': { pass: '0802', role: 'ceo' } },
+    cash: 0, soldL: 0, soldP: 0, prodL: 0, prodP: 0,
+    currentHistory: [], historicalCuts: [], inventory: defaultFlavors
+};
 
 let cart = [];
 let prodMode = 'fruta';
 let invView = 'fruta';
 let CURRENT_USER = null;
 
-function save() { localStorage.setItem(DB_KEY, JSON.stringify(db)); updateUI(); }
+// --- MAGIA: ESCUCHAR LA NUBE EN TIEMPO REAL ---
+dbRef.onSnapshot((doc) => {
+    if (doc.exists) {
+        db = doc.data(); // Actualizamos con los datos de internet
+        if(CURRENT_USER) updateUI(); // Si alguien está logueado, refresca la pantalla
+    } else {
+        // Si la nube está vacía, intentamos rescatar lo viejo del celular (Migración)
+        let oldLocal = JSON.parse(localStorage.getItem('ferguz_corp_v9.1'));
+        if(oldLocal) db = oldLocal;
+        dbRef.set(db); // Creamos el archivo en la nube por primera vez
+    }
+});
 
+// --- GUARDAR EN LA NUBE ---
+function save() {
+    // Reemplazamos localStorage por Firebase!
+    dbRef.set(db).catch(err => console.error("Error al guardar en la nube:", err));
+    updateUI(); 
+}
+
+// --- AUTENTICACIÓN Y ROLES ---
 function toggleAuthView(view) {
     document.getElementById('view-login').style.display = view === 'login' ? 'block' : 'none';
     document.getElementById('view-register').style.display = view === 'register' ? 'block' : 'none';
@@ -110,6 +145,7 @@ function checkLowStockAlert() {
     }
 }
 
+// --- VENTA (POS) ---
 function setFilter(type, btn) {
     const grid = document.getElementById('flavors-grid');
     const pc = document.getElementById('price-container');
@@ -209,10 +245,12 @@ function finishSale() {
     });
 
     cart=[]; document.getElementById('checkout-modal').style.display='none';
-    save(); alert("✅ Venta registrada con éxito");
+    save(); // ESTO AHORA GUARDA EN LA NUBE
+    alert("✅ Venta registrada con éxito");
     const ab = document.querySelector('#screen-pos .filter-btn.active'); if(ab) ab.click();
 }
 
+// --- PRODUCCIÓN ---
 function setProdMode(m) {
     prodMode = m;
     ['fruta','crema','paleta'].forEach(mode => { document.getElementById(`btn-prod-${mode}`).className = 'filter-btn' + (mode===m?' active':''); });
@@ -246,17 +284,22 @@ function saveProduction() {
             id: Date.now(), type: 'PROD', date: d.toLocaleDateString(), time: d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
             user: CURRENT_USER.username.toUpperCase(), exact: `${q}${u} de ${n}`, sum: '-', money: '-', client: '-'
         });
-        save(); alert("🏭 Producción Guardada");
+        save(); // ESTO AHORA GUARDA EN LA NUBE
+        alert("🏭 Producción Guardada");
     }
 }
 
+// --- INTERFAZ E INVENTARIO ---
 function toggleInvView() {
     if(invView==='fruta') invView='crema'; else if(invView==='crema') invView='paleta'; else invView='fruta';
     updateUI();
 }
 
 function updateUI() {
-    document.getElementById('stat-cash').innerText=`$${db.cash}`;
+    // Evitar errores si no se ha cargado la base de datos de la nube aún
+    if(!db || !db.inventory) return; 
+
+    document.getElementById('stat-cash').innerText=`$${db.cash || 0}`;
     document.getElementById('stat-sold-l').innerText=`${db.soldL||0} L`;
     document.getElementById('stat-sold-p').innerText=`${db.soldP||0} Pz`;
     document.getElementById('stat-prod-l').innerText=`${db.prodL||0} L`;
@@ -276,13 +319,17 @@ function updateUI() {
     renderHistory(); renderHistoricalCuts(); renderProdSelect(); updateCartUI();
 }
 
+// --- HISTORIAL Y CORTES DE CAJA ---
 function renderHistory() {
     const hc = document.getElementById('hist-current-container'); hc.innerHTML = '';
-    if(db.currentHistory.length === 0) hc.innerHTML = '<p style="text-align:center; color:#999; font-size:0.9rem;">Sin movimientos en este turno.</p>';
+    if(!db.currentHistory || db.currentHistory.length === 0) {
+        hc.innerHTML = '<p style="text-align:center; color:#999; font-size:0.9rem;">Sin movimientos en este turno.</p>';
+        return;
+    }
     db.currentHistory.forEach(h => {
         let badge = h.type === 'VENTA' ? 'badge-venta' : 'badge-prod';
         let moneyStr = h.money !== '-' ? `<span style="color:#00E676; font-weight:bold; font-size:1.1rem; text-shadow: 0px 1px 1px rgba(0,0,0,0.1);">${h.money}</span>` : '';
-        hc.innerHTML += `<div class="history-card"><div class="hist-header"><span><span class="hist-badge ${badge}">${h.type}</span> 🕒 ${h.time}</span><span style="color:var(--primary); font-weight:bold;">👤 ${h.user}</span></div><div style="font-weight:bold; font-size:0.95rem;">${h.sum} ${moneyStr}</div><div style="font-size:0.85rem; color:#444; margin-top:5px;">Detalle: ${h.exact}</div>${h.client !== '-' ? `<div style="font-size:0.8rem; color:#888; margin-top:5px;">📋 Cliente: ${h.client}</div>` : ''}</div>`;
+        hc.innerHTML += `<div class="history-card"><div class="hist-header"><span><span class="hist-badge ${badge}">${h.type}</span> 🕒 ${h.time}</span><span style="color:var(--primary); font-weight:bold;">👤 ${h.user}</span></div><div style="font-weight:bold; font-size:0.95rem;">${h.sum} ${moneyStr}</div><div style="font-size:0.85rem; color:#444; margin-top:5px;">Detalle: ${h.exact}</div>${h.client && h.client !== '-' ? `<div style="font-size:0.8rem; color:#888; margin-top:5px;">📋 Cliente: ${h.client}</div>` : ''}</div>`;
     });
 }
 
@@ -290,13 +337,16 @@ function closeDay() {
     if(!confirm("⚠️ ¿Estás seguro de hacer el Corte de Caja?\nEsto cerrará el turno actual y guardará los reportes en el historial.")) return;
     const d = new Date();
     const cutObj = { id: Date.now(), dateGroup: `Cortes ${d.toLocaleDateString('es-MX', {day: 'numeric', month: 'long', year: 'numeric'})}`, time: d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), stats: { cash: db.cash, sl: db.soldL, sp: db.soldP, pl: db.prodL, pp: db.prodP }, movements: [...db.currentHistory] };
+    if(!db.historicalCuts) db.historicalCuts = [];
     db.historicalCuts.unshift(cutObj); 
     db.currentHistory = []; db.cash=0; db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; 
-    save(); alert("🔒 Corte de caja realizado exitosamente.");
+    save(); // AHORA SE GUARDA EL CORTE EN LA NUBE ☁️
+    alert("🔒 Corte de caja realizado exitosamente.");
 }
 
 function renderHistoricalCuts() {
     const container = document.getElementById('hist-cuts-container'); container.innerHTML = '';
+    if(!db.historicalCuts) return;
     const groups = {};
     db.historicalCuts.forEach(cut => { if(!groups[cut.dateGroup]) groups[cut.dateGroup] = []; groups[cut.dateGroup].push(cut); });
     for(const date in groups) {
@@ -314,46 +364,57 @@ function openCutDetail(id) {
     document.getElementById('cut-detail-modal').style.display = 'flex';
 }
 
-function clearHistory() { if(confirm("🛑 PELIGRO: ¿BORRAR TODOS los cortes?")) { if(confirm("⚠️ CONFIRMACIÓN FINAL.")) { db.historicalCuts = []; db.currentHistory = []; save(); alert("Historial eliminado."); } } }
+function clearHistory() { 
+    if(confirm("🛑 PELIGRO: ¿BORRAR TODOS los cortes?")) { 
+        if(confirm("⚠️ CONFIRMACIÓN FINAL. Se borrarán permanentemente de LA NUBE para todos los usuarios.")) { 
+            db.historicalCuts = []; db.currentHistory = []; 
+            save(); // ESTO BORRA EL HISTORIAL EN LA NUBE ☁️
+            alert("Historial eliminado de la base de datos."); 
+        } 
+    } 
+}
 
+// --- GENERADOR DE EXCEL MEJORADO (CON INVENTARIO Y RESUMEN) ---
 function downloadExcel() {
-    // 1. SECCIÓN DE MOVIMIENTOS
     let csv = "\uFEFF--- REPORTE DETALLADO DE MOVIMIENTOS ---\n";
     csv += "Turno,Fecha,Hora,Usuario,Tipo,Movimiento,Cantidades,Ingreso,Cliente\n";
     
-    // Movimientos de cortes pasados
-    db.historicalCuts.forEach(cut => {
-        cut.movements.forEach(h => {
-            let cleanDet = h.exact.replace(/,/g, ' '); 
-            csv += `"${cut.dateGroup}",${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`;
+    if(db.historicalCuts) {
+        db.historicalCuts.forEach(cut => {
+            cut.movements.forEach(h => {
+                let cleanDet = h.exact.replace(/,/g, ' '); 
+                csv += `"${cut.dateGroup}",${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`;
+            });
         });
-    });
+    }
     
-    // Movimientos del turno actual (Aún sin cerrar)
-    db.currentHistory.forEach(h => {
-        let cleanDet = h.exact.replace(/,/g, ' '); 
-        csv += `"Turno Activo",${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`;
-    });
+    if(db.currentHistory) {
+        db.currentHistory.forEach(h => {
+            let cleanDet = h.exact.replace(/,/g, ' '); 
+            csv += `"Turno Activo",${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`;
+        });
+    }
 
-    // 2. SECCIÓN DE RESUMEN DE CORTES DE CAJA
     csv += "\n\n--- RESUMEN DE CORTES DE CAJA ---\n";
     csv += "Fecha del Turno,Hora de Corte,Efectivo Total,Agua Vendida (L),Paletas Vendidas (pz),Agua Fab. (L),Paletas Fab. (pz)\n";
-    db.historicalCuts.forEach(cut => {
-        csv += `"${cut.dateGroup}",${cut.time},$${cut.stats.cash},${cut.stats.sl},${cut.stats.sp},${cut.stats.pl},${cut.stats.pp}\n`;
-    });
+    if(db.historicalCuts) {
+        db.historicalCuts.forEach(cut => {
+            csv += `"${cut.dateGroup}",${cut.time},$${cut.stats.cash},${cut.stats.sl},${cut.stats.sp},${cut.stats.pl},${cut.stats.pp}\n`;
+        });
+    }
 
-    // 3. SECCIÓN DE INVENTARIO ACTUAL
     csv += "\n\n--- INVENTARIO ACTUAL FERGUZ ---\n";
     csv += "Producto,Categoria,Stock,Unidad,Precio Fijo\n";
-    db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
-        if(!i.hidden) {
-            let unit = i.t === 'paleta' ? 'pz' : 'L';
-            let price = i.t === 'paleta' ? `$${i.p}` : 'Variable';
-            csv += `"${i.n}",${i.t},${i.s},${unit},${price}\n`;
-        }
-    });
+    if(db.inventory) {
+        db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
+            if(!i.hidden) {
+                let unit = i.t === 'paleta' ? 'pz' : 'L';
+                let price = i.t === 'paleta' ? `$${i.p}` : 'Variable';
+                csv += `"${i.n}",${i.t},${i.s},${unit},${price}\n`;
+            }
+        });
+    }
 
-    // Crear y descargar el archivo
     const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
     const a = document.createElement('a');
     a.href = window.URL.createObjectURL(blob); 
@@ -361,12 +422,13 @@ function downloadExcel() {
     a.click();
 }
 
+// --- AJUSTES Y MODALES ---
 function openSettings() { document.getElementById('settings-modal').style.display='flex'; }
 function closeSettings() { document.getElementById('settings-modal').style.display='none'; }
 function showAddFlavor() { document.getElementById('new-flavor-name').value = ''; document.getElementById('new-flavor-stock').value = ''; document.getElementById('add-flavor-modal').style.display='flex'; }
-function saveNewFlavor() { const n = document.getElementById('new-flavor-name').value.trim(); const t = document.getElementById('new-flavor-type').value; const s = parseInt(document.getElementById('new-flavor-stock').value) || 0; if(!n) return alert("Ingresa un nombre."); if(db.inventory.find(i => i.n.toLowerCase() === n.toLowerCase())) return alert("Ese sabor ya existe."); db.inventory.push({n: n, t: t, s: s}); save(); document.getElementById('add-flavor-modal').style.display='none'; alert("✅ Sabor registrado"); }
+function saveNewFlavor() { const n = document.getElementById('new-flavor-name').value.trim(); const t = document.getElementById('new-flavor-type').value; const s = parseInt(document.getElementById('new-flavor-stock').value) || 0; if(!n) return alert("Ingresa un nombre."); if(db.inventory.find(i => i.n.toLowerCase() === n.toLowerCase())) return alert("Ese sabor ya existe."); db.inventory.push({n: n, t: t, s: s}); save(); document.getElementById('add-flavor-modal').style.display='none'; alert("✅ Sabor registrado en la nube"); }
 function showAddPaleta() { document.getElementById('new-paleta-name').value = ''; document.getElementById('new-paleta-price').value = ''; document.getElementById('new-paleta-stock').value = ''; document.getElementById('add-paleta-modal').style.display='flex'; }
-function saveNewPaleta() { const n = document.getElementById('new-paleta-name').value.trim(); const p = parseFloat(document.getElementById('new-paleta-price').value) || 0; const s = parseInt(document.getElementById('new-paleta-stock').value) || 0; if(!n) return alert("Ingresa un nombre."); if(db.inventory.find(i => i.n.toLowerCase() === n.toLowerCase())) return alert("Esta paleta ya existe."); db.inventory.push({n: n, t: 'paleta', s: s, p: p}); save(); document.getElementById('add-paleta-modal').style.display='none'; alert("✅ Paleta registrada"); }
+function saveNewPaleta() { const n = document.getElementById('new-paleta-name').value.trim(); const p = parseFloat(document.getElementById('new-paleta-price').value) || 0; const s = parseInt(document.getElementById('new-paleta-stock').value) || 0; if(!n) return alert("Ingresa un nombre."); if(db.inventory.find(i => i.n.toLowerCase() === n.toLowerCase())) return alert("Esta paleta ya existe."); db.inventory.push({n: n, t: 'paleta', s: s, p: p}); save(); document.getElementById('add-paleta-modal').style.display='none'; alert("✅ Paleta registrada en la nube"); }
 function showEditFlavors() { renderEditList(); document.getElementById('edit-flavors-modal').style.display='flex'; }
 function renderEditList() {
     const c = document.getElementById('edit-list-container'); c.innerHTML = '';
@@ -377,10 +439,10 @@ function renderEditList() {
         c.innerHTML += `<div style="background:#f9f9f9; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;"><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="e-n-${index}" value="${item.n}" style="flex:1; padding:5px; border-radius:5px; font-weight:bold; color:var(--primary);"><select id="e-t-${index}" style="padding:5px; border-radius:5px;">${tOps}</select></div><div style="display:flex; gap:5px; align-items:center; justify-content:flex-end;">${pHtml} <span style="font-size:0.8rem;">Stock:</span><input type="number" id="e-s-${index}" value="${item.s}" style="width:55px; padding:5px; border-radius:5px;"><button class="btn-success" style="padding:5px 10px; border-radius:5px; border:none; background:#00E676; color:#004d25;" onclick="saveEdit(${index})">💾</button><button class="btn-danger" style="padding:5px 10px; border-radius:5px; border:none;" onclick="deleteItem(${index})">🗑️</button></div></div>`;
     });
 }
-function saveEdit(idx) { const i = db.inventory[idx]; i.n = document.getElementById(`e-n-${idx}`).value; i.t = document.getElementById(`e-t-${idx}`).value; i.s = parseInt(document.getElementById(`e-s-${idx}`).value) || 0; if(i.t==='paleta') i.p = parseFloat(document.getElementById(`e-p-${idx}`).value) || 0; save(); alert("✅ Cambios guardados."); const ab = document.querySelector('#screen-pos .filter-btn.active'); if(ab) ab.click(); }
-function deleteItem(idx) { if(confirm("⚠️ ¿Eliminar este producto permanentemente?")) { db.inventory.splice(idx, 1); save(); renderEditList(); const ab = document.querySelector('#screen-pos .filter-btn.active'); if(ab) ab.click(); } }
+function saveEdit(idx) { const i = db.inventory[idx]; i.n = document.getElementById(`e-n-${idx}`).value; i.t = document.getElementById(`e-t-${idx}`).value; i.s = parseInt(document.getElementById(`e-s-${idx}`).value) || 0; if(i.t==='paleta') i.p = parseFloat(document.getElementById(`e-p-${idx}`).value) || 0; save(); alert("✅ Cambios guardados en la Nube."); const ab = document.querySelector('#screen-pos .filter-btn.active'); if(ab) ab.click(); }
+function deleteItem(idx) { if(confirm("⚠️ ¿Eliminar este producto permanentemente de la nube?")) { db.inventory.splice(idx, 1); save(); renderEditList(); const ab = document.querySelector('#screen-pos .filter-btn.active'); if(ab) ab.click(); } }
 
-// Inicialización de la pantalla
+// --- ARRANQUE DE LA APP ---
 window.onload = () => {
     const firstBtn = document.querySelector('.filter-btn');
     if(firstBtn) setFilter('fruta', firstBtn);
