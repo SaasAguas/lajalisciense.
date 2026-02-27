@@ -317,9 +317,48 @@ function openCutDetail(id) {
 function clearHistory() { if(confirm("🛑 PELIGRO: ¿BORRAR TODOS los cortes?")) { if(confirm("⚠️ CONFIRMACIÓN FINAL.")) { db.historicalCuts = []; db.currentHistory = []; save(); alert("Historial eliminado."); } } }
 
 function downloadExcel() {
-    let csv = "\uFEFFFecha,Hora,Usuario,Tipo,Movimiento,Suma,Ingreso,Cliente\n";
-    db.historicalCuts.forEach(cut => { cut.movements.forEach(h => { let cleanDet = h.exact.replace(/,/g, ' '); csv += `${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`; }); });
-    const a = document.createElement('a'); a.href = window.URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'})); a.download = `Reporte_Ferguz_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`; a.click();
+    // 1. SECCIÓN DE MOVIMIENTOS
+    let csv = "\uFEFF--- REPORTE DETALLADO DE MOVIMIENTOS ---\n";
+    csv += "Turno,Fecha,Hora,Usuario,Tipo,Movimiento,Cantidades,Ingreso,Cliente\n";
+    
+    // Movimientos de cortes pasados
+    db.historicalCuts.forEach(cut => {
+        cut.movements.forEach(h => {
+            let cleanDet = h.exact.replace(/,/g, ' '); 
+            csv += `"${cut.dateGroup}",${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`;
+        });
+    });
+    
+    // Movimientos del turno actual (Aún sin cerrar)
+    db.currentHistory.forEach(h => {
+        let cleanDet = h.exact.replace(/,/g, ' '); 
+        csv += `"Turno Activo",${h.date},${h.time},${h.user},${h.type},"${cleanDet}",${h.sum},${h.money},${h.client}\n`;
+    });
+
+    // 2. SECCIÓN DE RESUMEN DE CORTES DE CAJA
+    csv += "\n\n--- RESUMEN DE CORTES DE CAJA ---\n";
+    csv += "Fecha del Turno,Hora de Corte,Efectivo Total,Agua Vendida (L),Paletas Vendidas (pz),Agua Fab. (L),Paletas Fab. (pz)\n";
+    db.historicalCuts.forEach(cut => {
+        csv += `"${cut.dateGroup}",${cut.time},$${cut.stats.cash},${cut.stats.sl},${cut.stats.sp},${cut.stats.pl},${cut.stats.pp}\n`;
+    });
+
+    // 3. SECCIÓN DE INVENTARIO ACTUAL
+    csv += "\n\n--- INVENTARIO ACTUAL FERGUZ ---\n";
+    csv += "Producto,Categoria,Stock,Unidad,Precio Fijo\n";
+    db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
+        if(!i.hidden) {
+            let unit = i.t === 'paleta' ? 'pz' : 'L';
+            let price = i.t === 'paleta' ? `$${i.p}` : 'Variable';
+            csv += `"${i.n}",${i.t},${i.s},${unit},${price}\n`;
+        }
+    });
+
+    // Crear y descargar el archivo
+    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob); 
+    a.download = `Reporte_Ferguz_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+    a.click();
 }
 
 function openSettings() { document.getElementById('settings-modal').style.display='flex'; }
