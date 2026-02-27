@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Jalisciense Pro</title>
+    <title>Paleterías Ferguz</title>
 
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="1771074901862.png">
-    <link rel="shortcut icon" type="image/png" href="1771074901862.png">
-    <link rel="apple-touch-icon" href="1771074901862.png">
+    <link rel="icon" type="image/png" href="logo_ferguz.png">
+    <link rel="shortcut icon" type="image/png" href="logo_ferguz.png">
+    <link rel="apple-touch-icon" href="logo_ferguz.png">
     
-    <meta name="theme-color" content="#6A1B9A">
+    <meta name="theme-color" content="#F50057">
     <style>
-        /* --- TEMA LAVANDA --- */
+        /* --- TEMA FERGUS (Magenta, Azul, Amarillo, Verde) --- */
         :root {
-            --primary: #6A1B9A; 
-            --primary-light: #AB47BC;
-            --accent: #00E676;
-            --bg: #F3E5F5;
+            /* Colores principales del logo */
+            --ferguz-pink: #F50057; /* Magenta de la cinta y splashes */
+            --ferguz-blue: #40C4FF; /* Azul de los splashes y contorno de texto */
+            --ferguz-yellow: #FFEA00; /* Amarillo del texto principal */
+            --ferguz-green: #00E676; /* Verde lima de la fruta y popsicles */
+            
+            /* Colores de UI */
+            --primary: var(--ferguz-pink); 
+            --primary-light: #FF80AB;
+            --accent: var(--ferguz-blue);
+            --bg: #FCE4EC; /* Rosa ultra-claro */
             --text: #2c2c2c;
             --card-bg: #FFFFFF;
             --danger: #FF5252;
@@ -30,7 +37,7 @@
             overscroll-behavior-y: none;
         }
         
-        /* NAVEGACIÓN (AHORA 4 BOTONES) */
+        /* NAVEGACIÓN (4 BOTONES) */
         nav { 
             position: fixed; bottom: 0; width: 100%; 
             background: var(--card-bg); display: flex; justify-content: space-around; 
@@ -40,7 +47,7 @@
         .nav-btn { 
             background: none; border: none; font-size: 0.75rem; 
             display: flex; flex-direction: column; align-items: center; 
-            color: #999; width: 25%; /* Ajustado para 4 opciones */
+            color: #999; width: 25%; 
         }
         .nav-btn.hidden-role { display: none !important; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
@@ -61,25 +68,25 @@
         /* BOTONES */
         .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; color: white; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); }
-        .btn-success { background: var(--accent); color: #004d25; }
+        .btn-success { background: var(--accent); color: #004d25; } /* Azul Ferguz para success */
         .btn-danger { background: var(--danger); }
-        .btn-sm { background: #E1BEE7; color: var(--primary); border: none; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+        .btn-sm { background: var(--primary-light); color: var(--primary); border: none; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
 
         /* FILTROS */
         .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
-        .filter-btn { flex: 1; padding: 10px 2px; border: none; border-radius: 12px; background-color: #E1BEE7; color: #4A148C; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-        .filter-btn.active { background-color: var(--primary); color: white; transform: scale(1.05); box-shadow: 0 3px 6px rgba(106, 27, 154, 0.3); }
+        .filter-btn { flex: 1; padding: 10px 2px; border: none; border-radius: 12px; background-color: var(--primary-light); color: white; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { background-color: var(--primary); color: white; transform: scale(1.05); box-shadow: 0 3px 6px rgba(245, 0, 87, 0.3); }
 
         /* GRID POS */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .flavor-card { background: white; padding: 15px 10px; border-radius: 12px; text-align: center; border: 1px solid #eee; position: relative; }
-        .flavor-card:active { background-color: #E1BEE7; border-color: var(--primary); transform: scale(0.98); }
-        .stock-badge { font-size: 0.85rem; background: #f3e5f5; color: var(--primary); padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 5px; font-weight: bold; }
+        .flavor-card:active { background-color: var(--primary-light); border-color: var(--primary); transform: scale(0.98); }
+        .stock-badge { font-size: 0.85rem; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 5px; font-weight: bold; }
         
         /* CARRO & VARIOS */
-        .cart-bar { position: fixed; bottom: 75px; left: 15px; right: 15px; background: var(--primary); color: white; padding: 15px; border-radius: 50px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4); z-index: 900; animation: slideUp 0.3s; }
+        .cart-bar { position: fixed; bottom: 75px; left: 15px; right: 15px; background: var(--primary); color: white; padding: 15px; border-radius: 50px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(245, 0, 87, 0.4); z-index: 900; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #f3e5f5; border-radius: 10px; padding: 5px; }
+        .qty-selector { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: var(--primary-light); border-radius: 10px; padding: 5px; }
         .qty-btn { width: 45px; height: 45px; border: none; background: white; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: var(--primary); }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .stat-item { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 10px; font-size: 0.85rem; }
@@ -89,39 +96,41 @@
         .cart-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .delete-btn { background: var(--danger); color: white; border: none; border-radius: 8px; width: 35px; height: 35px; font-weight: bold; font-size: 1.2rem; margin-left: 10px; }
 
-        /* BARRAS DE INVENTARIO */
+        /* BARRAS DE INVENTARIO (Colores Ferguz) */
         .inv-row { display: flex; flex-direction: column; padding: 10px 0; border-bottom: 1px solid #eee; }
         .inv-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
-        .progress-bg { width: 100%; background: #f3e5f5; height: 8px; border-radius: 5px; overflow: hidden; }
+        .progress-bg { width: 100%; background: var(--primary-light); height: 8px; border-radius: 5px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
 
         /* HISTORIAL MEJORADO */
         .history-card { border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
         .hist-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
         .hist-badge { font-weight: bold; padding: 2px 6px; border-radius: 5px; font-size: 0.75rem; color: white; }
-        .badge-venta { background: var(--primary-light); }
-        .badge-prod { background: var(--accent); color: #004d25; }
-        .badge-corte { background: #FF9800; }
-        .hist-cut-group { margin-top: 15px; border: 2px solid var(--primary-light); border-radius: 10px; padding: 10px; background: white; }
+        .badge-venta { background: var(--primary); } /* Rosa Ferguz */
+        .badge-prod { background: var(--ferguz-green); color: #004d25; } /* Verde Ferguz */
+        .badge-corte { background: var(--ferguz-yellow); color: var(--text); } /* Amarillo Ferguz */
+        .badge-acceso { background: #E1BEE7; color: var(--primary); }
+        .badge-admin { background: #AB47BC; color: white; }
+        .hist-cut-group { margin-top: 15px; border: 2px solid var(--primary); border-radius: 10px; padding: 10px; background: white; }
         .hist-cut-title { font-weight: bold; color: var(--primary); font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
 
         /* LOGIN / REGISTRO */
         #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y:auto; padding: 20px 0; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 80%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin: auto; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #E1BEE7; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .logout-btn { background: none; border:none; font-size: 1.5rem; cursor: pointer; padding: 0; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid var(--primary-light); border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        .logout-btn { background: none; border:none; font-size: 1.5rem; cursor: pointer; padding: 0; color: white; }
         .logo-anim { animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .link-text { color: var(--primary-light); font-size: 0.9rem; text-decoration: underline; cursor: pointer; margin-top: 15px; display: inline-block; }
+        .link-text { color: var(--primary); font-size: 0.9rem; text-decoration: underline; cursor: pointer; margin-top: 15px; display: inline-block; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box" id="view-login">
-            <img src="1771074901862.png" alt="Logo" style="width: 120px; margin-bottom: 10px;" class="logo-anim">
+            <img src="logo_ferguz.png" alt="Logo Ferguz" style="width: 120px; margin-bottom: 10px;" class="logo-anim">
             <h2 style="color:var(--primary); margin:0 0 10px 0;">Bienvenido</h2>
-            <p style="color:#666; margin-top:0;">Sistema de Gestión</p>
+            <p style="color:#666; margin-top:0;">Paleterías Ferguz</p>
             
             <input type="text" id="login-user" class="login-input" placeholder="Usuario">
             <input type="password" id="login-pass" class="login-input" placeholder="Contraseña">
@@ -150,12 +159,12 @@
             <button class="btn btn-success" onclick="attemptRegister()">Crear Cuenta</button>
             <span class="link-text" onclick="toggleAuthView('login')">Volver al Inicio de Sesión</span>
         </div>
-        <p style="color:rgba(255,255,255,0.7); margin-top:20px; font-size:0.8rem;">La Jalisciense App Corporativa v4.0</p>
+        <p style="color:rgba(255,255,255,0.7); margin-top:20px; font-size:0.8rem;">Ferguz App Corporativa v4.0</p>
     </div>
 
     <div style="background: var(--primary); color: white; padding: 10px 15px; position: sticky; top:0; z-index: 900; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="display:flex; align-items:center; gap:10px;">
-            <img src="1771074901862.png" style="width:30px; height:30px; border-radius:50%; background:white; padding:2px;">
+            <img src="logo_ferguz.png" style="width:30px; height:30px; border-radius:50%; background:white; padding:2px;">
             <div style="display:flex; flex-direction:column;">
                 <span style="font-weight:bold; font-size:0.9rem;" id="user-display">Invitado</span>
                 <span style="font-size:0.7rem; opacity:0.8;" id="role-display">Rol</span>
@@ -163,8 +172,8 @@
         </div>
         <button class="logout-btn" onclick="openSettings()">⚙️</button>
     </div>
-    
-    <div id="screen-pos" class="screen active-screen">
+
+        <div id="screen-pos" class="screen active-screen">
         <div class="card">
             <div class="filter-container">
                 <button class="filter-btn active" onclick="setFilter('fruta', this)">Fruta 🍓</button>
@@ -174,14 +183,14 @@
             
             <div id="price-container" style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:15px;">
                 <label style="font-size:0.9rem; color:#666; font-weight:bold;">Tipo de Cliente (Agua):</label>
-                <select id="price-select" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ddd; border-radius:8px; font-weight:bold; color:var(--primary);">
+                <select id="price-select" style="width:100%; padding:10px; margin-top:5px; border:2px solid var(--primary-light); border-radius:8px; font-weight:bold; color:var(--primary);">
                     <option value="20" data-tipo="Menudeo">Menudeo ($20 x L)</option>
                     <option value="16" data-tipo="Mayoreo">Mayoreo ($16 x L)</option>
                     <option value="15" data-tipo="Especial">Especial ($15 x L)</option>
                 </select>
             </div>
             
-            <div id="fixed-price-msg" style="display:none; background:#E1BEE7; color:#4A148C; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; font-weight:bold;">
+            <div id="fixed-price-msg" style="display:none; background:var(--primary-light); color:white; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; font-weight:bold;">
                 Precios Fijos según producto
             </div>
 
@@ -207,12 +216,12 @@
             <p style="font-size:0.9rem; color:#666; text-align:center;" id="prod-subtitle">Registrar producción de Fruta</p>
             
             <label style="font-weight:bold; color:var(--primary);">Producto:</label>
-            <select id="prod-flavor" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:10px; background:white;"></select>
+            <select id="prod-flavor" style="width:100%; padding:12px; margin:10px 0; border:2px solid var(--primary-light); border-radius:10px; background:white;"></select>
             
             <label style="font-weight:bold; color:var(--primary);">Cantidad a registrar:</label>
             <div class="qty-selector">
                 <button class="qty-btn" onclick="adjustProd(-5)">-5</button>
-                <input type="number" id="prod-qty" value="20" style="border:none; background:transparent; text-align:center; font-size:1.5rem; width:60px; font-weight:bold;">
+                <input type="number" id="prod-qty" value="20" style="border:none; background:transparent; text-align:center; font-size:1.5rem; width:60px; font-weight:bold; color:var(--text);">
                 <button class="qty-btn" onclick="adjustProd(5)">+5</button>
             </div>
 
@@ -221,9 +230,9 @@
     </div>
 
     <div id="screen-admin" class="screen">
-        <div class="card" style="text-align:center; background: linear-gradient(135deg, var(--primary), #8E24AA); color: white;">
+        <div class="card" style="text-align:center; background: linear-gradient(135deg, var(--ferguz-pink), var(--ferguz-blue)); color: white;">
             <h2 style="color:white; border-bottom-color: rgba(255,255,255,0.2);">Caja del Turno</h2>
-            <h1 id="stat-cash" style="font-size:3rem; margin:10px 0;">$0</h1>
+            <h1 id="stat-cash" style="font-size:3rem; margin:10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">$0</h1>
             
             <div class="stats-grid">
                 <div class="stat-item">
@@ -244,11 +253,11 @@
                 </div>
             </div>
 
-            <button id="btn-corte" class="btn hidden-role" style="background:rgba(255,255,255,0.2); color:white; margin-top:15px;" onclick="closeDay()">🔒 Cerrar Turno (Corte de Caja)</button>
+            <button id="btn-corte" class="btn hidden-role" style="background:rgba(255,255,255,0.25); color:white; margin-top:15px; border: 1px solid rgba(255,255,255,0.5);" onclick="closeDay()">🔒 Cerrar Turno (Corte de Caja)</button>
         </div>
 
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f3e5f5; padding-bottom:10px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--bg); padding-bottom:10px; margin-bottom:10px;">
                 <h2 style="margin:0; border:none; font-size:1.1rem;" id="inv-title">Inventario</h2>
                 <button class="btn-sm" onclick="toggleInvView()">🔄 Cambiar</button>
             </div>
@@ -262,7 +271,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h2 style="margin:0;">📝 Turno Actual</h2>
                 <div style="display:flex; gap:5px;">
-                    <button onclick="downloadExcel()" class="btn-sm" style="background:var(--accent); color:#004d25; margin:0;">⬇ Excel</button>
+                    <button onclick="downloadExcel()" class="btn-sm" style="background:var(--ferguz-green); color:#004d25; margin:0;">⬇ Excel</button>
                     <button id="btn-clear-hist" onclick="clearHistory()" class="btn-sm hidden-role" style="background:var(--danger); color:white; margin:0;">🗑 Borrar</button>
                 </div>
             </div>
@@ -270,17 +279,17 @@
             <div style="max-height:250px; overflow-y:auto; margin-bottom: 20px;" id="hist-current-container">
                 </div>
 
-            <h2 style="margin-top:20px; border-top: 1px solid #eee; padding-top:15px;">📁 Cortes Históricos</h2>
+            <h2 style="margin-top:20px; border-top: 2px solid var(--bg); padding-top:15px;">📁 Cortes Históricos</h2>
             <div id="hist-cuts-container" style="max-height:300px; overflow-y:auto; padding-right:5px;">
                 </div>
         </div>
     </div>
 
     <div id="checkout-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
-        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid var(--primary);">
             <h3 style="margin-top:0; color:var(--primary);">🛒 Confirmar Venta</h3>
             <div id="checkout-list" style="max-height: 250px; overflow-y: auto; margin-bottom:20px;"></div>
-            <div style="text-align:right; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:1px solid #eee; padding-top:10px;" id="checkout-total">Total: $0</div>
+            <div style="text-align:right; font-size:1.5rem; font-weight:bold; margin-bottom:20px; border-top:2px solid var(--bg); padding-top:10px; color:var(--text);" id="checkout-total">Total: $0</div>
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('checkout-modal').style.display='none'">Cerrar</button>
                 <button class="btn btn-success" style="margin:0;" onclick="finishSale()">Cobrar</button>
@@ -289,20 +298,20 @@
     </div>
 
     <div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
-        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; text-align:center; position:relative;">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; text-align:center; position:relative; border-top: 5px solid var(--primary);">
             <button onclick="closeSettings()" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:1.5rem; color:var(--danger); cursor:pointer;">✕</button>
             <h2 style="margin-top:0;">Ajustes ⚙️</h2>
             
             <button id="btn-set-flav" class="btn btn-primary hidden-role" onclick="showAddFlavor()">Agregar Sabores 🍓</button>
-            <button id="btn-set-pal" class="btn btn-primary hidden-role" style="background:var(--primary-light);" onclick="showAddPaleta()">Agregar Paletas 🍭</button>
-            <button id="btn-set-edit" class="btn btn-success hidden-role" style="background:#BA68C8; color:white;" onclick="showEditFlavors()">Editar Inventario ✏️</button>
+            <button id="btn-set-pal" class="btn btn-primary hidden-role" style="background:var(--ferguz-blue); color:white;" onclick="showAddPaleta()">Agregar Paletas 🍭</button>
+            <button id="btn-set-edit" class="btn btn-success hidden-role" style="background:var(--ferguz-yellow); color:var(--text);" onclick="showEditFlavors()">Editar Inventario ✏️</button>
             
             <button class="btn btn-danger" style="margin-top:25px;" onclick="doLogout(); closeSettings();">Cerrar Sesión 🚪</button>
         </div>
     </div>
 
     <div id="add-flavor-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3100; align-items:center; justify-content:center;">
-        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px;">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; border-top: 5px solid var(--primary);">
             <h3 style="color:var(--primary); margin-top:0;">Nuevo Sabor (Agua)</h3>
             <input type="text" id="new-flavor-name" class="login-input" placeholder="Nombre del sabor">
             <select id="new-flavor-type" class="login-input">
@@ -312,45 +321,45 @@
             <input type="number" id="new-flavor-stock" class="login-input" placeholder="Stock inicial (Litros)" min="0">
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('add-flavor-modal').style.display='none'">Cancelar</button>
-                <button class="btn btn-success" style="margin:0;" onclick="saveNewFlavor()">Guardar</button>
+                <button class="btn btn-success" style="margin:0; background:var(--ferguz-green); color:#004d25;" onclick="saveNewFlavor()">Guardar</button>
             </div>
         </div>
     </div>
 
     <div id="add-paleta-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3100; align-items:center; justify-content:center;">
-        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px;">
-            <h3 style="color:var(--primary); margin-top:0;">Nueva Paleta</h3>
-            <input type="text" id="new-paleta-name" class="login-input" placeholder="Nombre de la paleta">
-            <input type="number" id="new-paleta-price" class="login-input" placeholder="Precio Fijo ($)" min="0">
-            <input type="number" id="new-paleta-stock" class="login-input" placeholder="Stock inicial (Piezas)" min="0">
+        <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; border-top: 5px solid var(--ferguz-blue);">
+            <h3 style="color:var(--ferguz-blue); margin-top:0;">Nueva Paleta</h3>
+            <input type="text" id="new-paleta-name" class="login-input" placeholder="Nombre de la paleta" style="border-color:var(--ferguz-blue);">
+            <input type="number" id="new-paleta-price" class="login-input" placeholder="Precio Fijo ($)" min="0" style="border-color:var(--ferguz-blue);">
+            <input type="number" id="new-paleta-stock" class="login-input" placeholder="Stock inicial (Piezas)" min="0" style="border-color:var(--ferguz-blue);">
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn btn-danger" style="margin:0;" onclick="document.getElementById('add-paleta-modal').style.display='none'">Cancelar</button>
-                <button class="btn btn-success" style="margin:0;" onclick="saveNewPaleta()">Guardar</button>
+                <button class="btn btn-success" style="margin:0; background:var(--ferguz-green); color:#004d25;" onclick="saveNewPaleta()">Guardar</button>
             </div>
         </div>
     </div>
 
     <div id="edit-flavors-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3100; align-items:center; justify-content:center;">
-        <div style="background:white; width:95%; max-width:500px; padding:20px; border-radius:15px; max-height:90vh; display:flex; flex-direction:column;">
-            <h3 style="color:var(--primary); margin-top:0;">Editar Inventario ✏️</h3>
+        <div style="background:white; width:95%; max-width:500px; padding:20px; border-radius:15px; max-height:90vh; display:flex; flex-direction:column; border-top: 5px solid var(--ferguz-yellow);">
+            <h3 style="color:var(--text); margin-top:0;">Editar Inventario ✏️</h3>
             <p style="font-size:0.8rem; color:#666; margin-top:0;">Modifica los campos y presiona 💾 para guardar, o 🗑️ para borrar.</p>
-            <div id="edit-list-container" style="overflow-y:auto; flex:1; margin-bottom:15px;"></div>
+            <div id="edit-list-container" style="overflow-y:auto; flex:1; margin-bottom:15px; padding-right:5px;"></div>
             <button class="btn btn-danger" onclick="document.getElementById('edit-flavors-modal').style.display='none'">Cerrar Panel</button>
         </div>
     </div>
 
     <div id="cut-detail-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:4000; align-items:center; justify-content:center;">
-        <div style="background:white; width:95%; max-width:500px; padding:20px; border-radius:15px; max-height:90vh; display:flex; flex-direction:column;">
+        <div style="background:white; width:95%; max-width:500px; padding:20px; border-radius:15px; max-height:90vh; display:flex; flex-direction:column; border-top: 5px solid var(--primary);">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:10px; margin-bottom:10px;">
                 <h3 id="cut-detail-title" style="color:var(--primary); margin:0;">Detalle de Corte</h3>
                 <button onclick="document.getElementById('cut-detail-modal').style.display='none'" style="background:none; border:none; font-size:1.5rem; color:var(--danger); cursor:pointer;">✕</button>
             </div>
             
-            <div id="cut-detail-stats" style="background:#f3e5f5; padding:10px; border-radius:10px; margin-bottom:15px; font-size:0.9rem;">
+            <div id="cut-detail-stats" style="background:var(--bg); padding:10px; border-radius:10px; margin-bottom:15px; font-size:0.9rem;">
                 </div>
             
             <strong style="color:var(--primary); margin-bottom:5px;">Movimientos del Turno:</strong>
-            <div id="cut-detail-list" style="overflow-y:auto; flex:1; margin-bottom:15px; font-size:0.85rem; border:1px solid #eee; border-radius:8px; padding:10px;">
+            <div id="cut-detail-list" style="overflow-y:auto; flex:1; margin-bottom:15px; font-size:0.85rem; border:2px solid var(--bg); border-radius:8px; padding:10px;">
                 </div>
             
             <button class="btn btn-primary" onclick="document.getElementById('cut-detail-modal').style.display='none'">Cerrar Detalles</button>
@@ -376,8 +385,8 @@
         // --- CÓDIGO DE CREADOR ---
         const CREATOR_CODE = "08020824";
 
-        // --- BASE DE DATOS (V9.0 - Usuarios Dinámicos e Historial Profundo) ---
-        const DB_KEY = 'jalisciense_corp_v9.0'; 
+        // --- BASE DE DATOS FERGUS (V9.1) ---
+        const DB_KEY = 'ferguz_corp_v9.1'; // Nueva base de datos para la nueva marca
         
         const defaultFlavors = [
             {n:'Jamaica', t:'fruta', s:20}, {n:'Maracuya', t:'fruta', s:20}, {n:'Ciruela', t:'fruta', s:20},
@@ -398,13 +407,23 @@
             {n:'Frapuchino', t:'paleta', s:999, p:10, hidden: true}
         ];
 
-        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            users: { 'zekkqi': { pass: '0802', role: 'ceo' } }, // Usuario por defecto
-            cash: 0, soldL: 0, soldP: 0, prodL: 0, prodP: 0,
-            currentHistory: [], // Historial del turno actual
-            historicalCuts: [], // Cortes agrupados
-            inventory: defaultFlavors
-        };
+        // Intentar migrar datos si existen de la versión anterior, si no, crear nueva
+        let oldDb = JSON.parse(localStorage.getItem('jalisciense_corp_v9.0'));
+        let db = JSON.parse(localStorage.getItem(DB_KEY));
+
+        if (!db) {
+            if (oldDb) {
+                db = oldDb; // Migrar datos
+            } else {
+                db = {
+                    users: { 'zekkqi': { pass: '0802', role: 'ceo' } },
+                    cash: 0, soldL: 0, soldP: 0, prodL: 0, prodP: 0,
+                    currentHistory: [], 
+                    historicalCuts: [], 
+                    inventory: defaultFlavors
+                };
+            }
+        }
 
         let cart = [];
         let prodMode = 'fruta';
@@ -450,7 +469,7 @@
                 document.getElementById('login-overlay').style.display = 'none';
                 
                 applyRolePermissions(CURRENT_USER.role);
-                checkLowStockAlert(); // Alerta de stock al iniciar
+                checkLowStockAlert();
                 
                 document.getElementById('login-user').value = '';
                 document.getElementById('login-pass').value = '';
@@ -467,7 +486,6 @@
         }
 
         function applyRolePermissions(role) {
-            // Empleado ve todas las pestañas, pero opciones peligrosas se ocultan (.hidden-role)
             const isEmployee = role === 'empleado';
             document.querySelectorAll('.hidden-role').forEach(el => {
                 el.style.display = isEmployee ? 'none' : '';
@@ -507,10 +525,10 @@
                 card.className = 'flavor-card';
                 card.onclick = () => addToCart(item);
                 
-                let cs = 'color:#2c2c2c'; let pd = '';
-                if(item.t === 'crema') cs = 'color:#AB47BC';
-                else if (item.t === 'fruta') cs = 'color:#BA68C8';
-                else if(item.t==='paleta') { cs='color:#6A1B9A'; pd=`<div style="color:#00E676;font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`; }
+                let cs = 'color:var(--text)'; let pd = '';
+                if(item.t === 'crema') cs = 'color:var(--ferguz-blue)';
+                else if (item.t === 'fruta') cs = 'color:var(--primary)';
+                else if(item.t==='paleta') { cs='color:var(--primary)'; pd=`<div style="color:var(--ferguz-green);font-weight:bold;font-size:0.9rem;">$${item.p||10}</div>`; }
                 
                 let stockDisp = item.hidden ? "♾️" : (item.s <= 10 ? `⚠️ ${item.s}` : item.s);
                 let badgeStyle = (item.s <= 10 && !item.hidden) ? 'background:#FFEBEE; color:var(--danger);' : '';
@@ -574,7 +592,6 @@
 
             db.cash += tc; db.soldL += tl; db.soldP += tp;
 
-            // Formatear Detalles de Venta Profundos
             const d = new Date();
             const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const dateStr = d.toLocaleDateString();
@@ -652,20 +669,20 @@
             document.getElementById('stat-prod-p').innerText=`${db.prodP||0} Pz`;
             document.getElementById('inv-title').innerText='Inventario de '+invView.toUpperCase();
             
-            // Render de Barras de Inventario
+            // Render de Barras de Inventario (Estilos Ferguz)
             const invC = document.getElementById('inv-container');
             invC.innerHTML = '';
             
             db.inventory.sort((a,b)=>a.n.localeCompare(b.n)).forEach(i => {
                 if(i.t===invView && !i.hidden) {
-                    let pct = Math.min((i.s / 100) * 100, 100); // Tope visual en 100%
-                    let barColor = i.s <= 10 ? 'var(--danger)' : (i.t==='paleta' ? 'var(--primary)' : 'var(--primary-light)');
-                    let warningTag = i.s <= 10 ? '<span style="color:red; font-size:0.8rem;">(Stock Bajo)</span>' : '';
+                    let pct = Math.min((i.s / 100) * 100, 100); 
+                    let barColor = i.s <= 10 ? 'var(--danger)' : (i.t==='paleta' ? 'var(--ferguz-blue)' : 'var(--primary)');
+                    let warningTag = i.s <= 10 ? '<span style="color:var(--danger); font-size:0.8rem;">(Stock Bajo)</span>' : '';
                     let unit = i.t === 'paleta' ? 'pz' : 'L';
                     
                     invC.innerHTML += `
                     <div class="inv-row">
-                        <div class="inv-info"><span>${i.n} ${warningTag}</span><span>${i.s} ${unit}</span></div>
+                        <div class="inv-info"><span>${i.n} ${warningTag}</span><span style="color:var(--primary);">${i.s} ${unit}</span></div>
                         <div class="progress-bg"><div class="progress-fill" style="width:${pct}%; background:${barColor};"></div></div>
                     </div>`;
                 }
@@ -684,13 +701,13 @@
             
             db.currentHistory.forEach(h => {
                 let badge = h.type === 'VENTA' ? 'badge-venta' : 'badge-prod';
-                let moneyStr = h.money !== '-' ? `<span style="color:var(--accent); font-weight:bold; font-size:1.1rem;">${h.money}</span>` : '';
+                let moneyStr = h.money !== '-' ? `<span style="color:var(--ferguz-green); font-weight:bold; font-size:1.1rem; text-shadow: 0px 1px 1px rgba(0,0,0,0.1);">${h.money}</span>` : '';
                 
                 hc.innerHTML += `
                 <div class="history-card">
                     <div class="hist-header">
                         <span><span class="hist-badge ${badge}">${h.type}</span> 🕒 ${h.time}</span>
-                        <span>👤 ${h.user}</span>
+                        <span style="color:var(--primary); font-weight:bold;">👤 ${h.user}</span>
                     </div>
                     <div style="font-weight:bold; font-size:0.95rem;">${h.sum} ${moneyStr}</div>
                     <div style="font-size:0.85rem; color:#444; margin-top:5px;">Detalle: ${h.exact}</div>
@@ -714,9 +731,8 @@
                 movements: [...db.currentHistory]
             };
 
-            db.historicalCuts.unshift(cutObj); // Guardar corte
+            db.historicalCuts.unshift(cutObj); 
             
-            // Resetear Turno Actual
             db.currentHistory = [];
             db.cash=0; db.soldL=0; db.soldP=0; db.prodL=0; db.prodP=0; 
             save(); alert("🔒 Corte de caja realizado exitosamente.");
@@ -726,7 +742,6 @@
             const container = document.getElementById('hist-cuts-container');
             container.innerHTML = '';
             
-            // Agrupar por día
             const groups = {};
             db.historicalCuts.forEach(cut => {
                 if(!groups[cut.dateGroup]) groups[cut.dateGroup] = [];
@@ -735,7 +750,7 @@
 
             for(const date in groups) {
                 let cutButtons = groups[date].map(c => 
-                    `<button class="btn btn-sm" style="background:#f3e5f5; color:var(--primary); margin-top:5px; margin-right:5px;" onclick="openCutDetail(${c.id})">🕒 Corte ${c.time}</button>`
+                    `<button class="btn btn-sm" style="background:var(--bg); color:var(--primary); margin-top:5px; margin-right:5px; border: 1px solid var(--primary-light);" onclick="openCutDetail(${c.id})">🕒 Corte ${c.time}</button>`
                 ).join('');
 
                 container.innerHTML += `
@@ -746,22 +761,14 @@
             }
         }
 
-
-        function clearHistory() {
-            if(confirm("🛑 PELIGRO: ¿Estás seguro de BORRAR TODOS los cortes históricos y empezar desde cero?")) {
-                if(confirm("⚠️ CONFIRMACIÓN FINAL. Esta acción no se puede deshacer.")) {
-                    db.historicalCuts = []; db.currentHistory = []; save(); alert("Historial completamente eliminado.");
-                }
-            }
-        }
-        
+        // AQUÍ ESTÁ LA FUNCIÓN CON LA CORRECCIÓN DEL CLIENTE INCLUIDA
         function openCutDetail(id) {
             const cut = db.historicalCuts.find(c => c.id === id);
             if(!cut) return;
 
             document.getElementById('cut-detail-title').innerText = `Reporte: ${cut.time}`;
             document.getElementById('cut-detail-stats').innerHTML = `
-                <strong>Total en Caja:</strong> <span style="color:var(--accent); font-size:1.1rem; font-weight:bold;">$${cut.stats.cash}</span><br>
+                <strong>Total en Caja:</strong> <span style="color:var(--ferguz-green); font-size:1.1rem; font-weight:bold;">$${cut.stats.cash}</span><br>
                 <strong>Ventas:</strong> ${cut.stats.sl}L de Agua | ${cut.stats.sp} Paletas<br>
                 <strong>Producción:</strong> ${cut.stats.pl}L de Agua | ${cut.stats.pp} Paletas
             `;
@@ -772,12 +779,21 @@
                     <strong style="color:var(--primary);">${h.type} (${h.time}) - 👤 ${h.user}</strong><br>
                     ${h.sum} ${h.money !== '-' ? `<b>(${h.money})</b>` : ''}<br>
                     <span style="color:#666;">${h.exact}</span>
+                    ${h.client && h.client !== '-' ? `<br><span style="font-size:0.8rem; color:#888; font-weight:bold;">📋 Cliente: ${h.client}</span>` : ''}
                 </div>
             `).join('') || '<p>No hubo movimientos en este turno.</p>';
 
             document.getElementById('cut-detail-modal').style.display = 'flex';
         }
-            
+
+        function clearHistory() {
+            if(confirm("🛑 PELIGRO: ¿Estás seguro de BORRAR TODOS los cortes históricos y empezar desde cero?")) {
+                if(confirm("⚠️ CONFIRMACIÓN FINAL. Esta acción no se puede deshacer.")) {
+                    db.historicalCuts = []; db.currentHistory = []; save(); alert("Historial completamente eliminado.");
+                }
+            }
+        }
+
         function downloadExcel() {
             let csv = "\uFEFFFecha,Hora,Usuario,Tipo,Movimiento,Suma,Ingreso,Cliente\n";
             db.historicalCuts.forEach(cut => {
@@ -789,7 +805,7 @@
             const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
             const a = document.createElement('a');
             a.href = window.URL.createObjectURL(blob); 
-            a.download = `Reporte_Jalisciense_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
+            a.download = `Reporte_Ferguz_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`;
             a.click();
         }
 
@@ -819,9 +835,9 @@
                 let tOps = item.t==='paleta' ? `<option value="paleta" selected>Paleta</option>` : `<option value="fruta" ${item.t==='fruta'?'selected':''}>Fruta</option><option value="crema" ${item.t==='crema'?'selected':''}>Crema</option>`;
                 let pHtml = item.t==='paleta' ? `<input type="number" id="e-p-${index}" value="${item.p}" style="width:50px; padding:5px; border:1px solid #ccc; border-radius:5px;">` : ``;
                 c.innerHTML += `<div style="background:#f9f9f9; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
-                    <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="e-n-${index}" value="${item.n}" style="flex:1; padding:5px; border-radius:5px; font-weight:bold;"><select id="e-t-${index}" style="padding:5px; border-radius:5px;">${tOps}</select></div>
+                    <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="e-n-${index}" value="${item.n}" style="flex:1; padding:5px; border-radius:5px; font-weight:bold; color:var(--primary);"><select id="e-t-${index}" style="padding:5px; border-radius:5px;">${tOps}</select></div>
                     <div style="display:flex; gap:5px; align-items:center; justify-content:flex-end;">${pHtml} <span style="font-size:0.8rem;">Stock:</span><input type="number" id="e-s-${index}" value="${item.s}" style="width:55px; padding:5px; border-radius:5px;">
-                    <button class="btn-success" style="padding:5px 10px; border-radius:5px; border:none;" onclick="saveEdit(${index})">💾</button><button class="btn-danger" style="padding:5px 10px; border-radius:5px; border:none;" onclick="deleteItem(${index})">🗑️</button></div></div>`;
+                    <button class="btn-success" style="padding:5px 10px; border-radius:5px; border:none; background:var(--ferguz-green); color:#004d25;" onclick="saveEdit(${index})">💾</button><button class="btn-danger" style="padding:5px 10px; border-radius:5px; border:none;" onclick="deleteItem(${index})">🗑️</button></div></div>`;
             });
         }
         function saveEdit(idx) { const i = db.inventory[idx]; i.n = document.getElementById(`e-n-${idx}`).value; i.t = document.getElementById(`e-t-${idx}`).value; i.s = parseInt(document.getElementById(`e-s-${idx}`).value) || 0; if(i.t==='paleta') i.p = parseFloat(document.getElementById(`e-p-${idx}`).value) || 0; save(); alert("✅ Cambios guardados."); const ab = document.querySelector('#screen-pos .filter-btn.active'); if(ab) ab.click(); }
@@ -832,4 +848,4 @@
         if(firstBtn) setFilter('fruta', firstBtn);
     </script>
 </body>
-</html>
+</html>          
